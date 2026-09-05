@@ -41,6 +41,33 @@ There is deliberately **no Privy app secret here**. This app never verifies a
 Privy token itself — it hands the token to the API, which verifies it against
 Privy's public key. The secret belongs only to the backend.
 
+### Creating an admin
+
+There is **no admin sign-up and no endpoint that grants the role** — by design,
+since anything reachable over HTTP that promotes an account is a target. An
+admin is an ordinary user whose `role` column says `admin`, so you register
+normally and promote in the database:
+
+```bash
+# 1. Register like any rider
+curl -X POST http://localhost:4010/api/v1/auth/register \
+  -H 'Content-Type: application/json' \
+  -d '{"name":"Ops Admin","email":"you@arkride.com","phone":"08012345678",
+       "password":"<a real password>","confirmPassword":"<the same>",
+       "acceptTerms":true}'
+
+# 2. Promote (local dev; use your own credentials in staging/production)
+psql -h localhost -p 5433 -U postgres -d arkrides \
+  -c "UPDATE users SET role='admin' WHERE email='you@arkride.com';"
+```
+
+Then sign in at `/admin/login`. Note that `/admin/login` is the ordinary rider
+login — succeeding there is not the same as being let in. `requireAdmin()`
+re-checks the role against the API on the next page load, so a non-admin who
+signs in is bounced straight back with `?reason=forbidden`.
+
+Do not commit admin credentials to this repo, including in this file.
+
 ### Checks
 
 ```bash
