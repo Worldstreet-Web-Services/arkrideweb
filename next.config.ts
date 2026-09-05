@@ -73,6 +73,16 @@ function csp(): string {
 }
 
 const nextConfig: NextConfig = {
+  /**
+   * Standalone output for containers.
+   *
+   * Next traces the modules actually reached and copies them, plus a minimal
+   * server, into `.next/standalone`. The runtime image then needs neither the
+   * source nor `node_modules` — which matters here, because Privy pulls in
+   * roughly 990 packages and a naive image ships all of them.
+   */
+  output: "standalone",
+
   async headers() {
     return [
       {
