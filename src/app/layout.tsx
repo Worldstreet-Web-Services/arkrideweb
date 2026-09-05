@@ -1,6 +1,6 @@
 import { PrivyProvider } from "@/components/auth/PrivyProvider";
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 /**
@@ -19,13 +19,38 @@ import "./globals.css";
  * `--font-brand` binding below. Nothing else in the codebase names a family —
  * `--font-sans` in globals.css reads `--font-brand` and every component reads
  * `--font-sans`.
+ *
+ * WHY THE FILES ARE COMMITTED RATHER THAN FETCHED
+ *
+ * `next/font/google` downloads the face from Google AT BUILD TIME. That makes
+ * every build — CI, Docker, Railway — depend on a working TLS path to
+ * fonts.googleapis.com, and a flaky one takes the whole build down: this
+ * failed in a container with `TypeError: fetch failed` and an SSL "bad record
+ * mac", from a network that could reach Google perfectly well a moment later.
+ *
+ * Self-hosting makes the build hermetic. It also removes a third-party request
+ * from every page load, which is one fewer thing between a rider on Lagos
+ * mobile data and a rendered page.
+ *
+ * These are the two Latin subsets of the variable font, so all four weights
+ * come from one file per subset rather than four static cuts.
  */
-const brandSans = Plus_Jakarta_Sans({
+const brandSans = localFont({
   variable: "--font-brand",
-  subsets: ["latin"],
-  // The four weights mobile registers, matched one for one.
-  weight: ["400", "500", "600", "700"],
   display: "swap",
+  src: [
+    {
+      path: "./fonts/PlusJakartaSans-latin.woff2",
+      style: "normal",
+      // A variable font: one file covers the whole 400-700 range mobile uses.
+      weight: "400 700",
+    },
+    {
+      path: "./fonts/PlusJakartaSans-latin-ext.woff2",
+      style: "normal",
+      weight: "400 700",
+    },
+  ],
 });
 
 export const metadata: Metadata = {
