@@ -7,8 +7,9 @@ import { SignOutButton } from "./SignOutButton";
 
 /** Page title shown in the header, derived from the route. */
 function titleFor(pathname: string): string {
-  if (pathname === "/admin") return "Driver applications";
-  if (pathname.startsWith("/admin/")) return "Review application";
+  if (pathname === "/admin") return "Driver verification";
+  if (pathname === "/admin/applications") return "Document submissions";
+  if (pathname.startsWith("/admin/")) return "Review submission";
   return "";
 }
 
