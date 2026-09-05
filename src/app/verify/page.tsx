@@ -32,7 +32,7 @@ export default function VerificationWelcome() {
           <ClockIcon size={14} /> About 10 minutes
         </span>
         <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-semibold text-neutral-600">
-          <LockIcon size={14} /> Encrypted &amp; private
+          <LockIcon size={14} /> Private to you on this device
         </span>
       </div>
 

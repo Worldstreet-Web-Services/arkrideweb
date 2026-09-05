@@ -51,7 +51,7 @@ function SummaryCard({
 }
 
 export function ReviewDetails() {
-  const { data, config, setStatus, update } = useVerification();
+  const { data, config, setStatus, update, purge } = useVerification();
   const router = useRouter();
   const [agreed, setAgreed] = useState(data.consent.agreed);
   const [submitting, setSubmitting] = useState(false);
@@ -83,6 +83,9 @@ export function ReviewDetails() {
 
   const handleSubmit = async () => {
     setError(null);
+    // Already sent. Without this, returning to /verify/review and pressing
+    // submit again appends a second copy of the same application to the queue.
+    if (submitting || data.status === "submitted") return;
     if (firstIncomplete) {
       setError(`Please complete "${firstIncomplete.title}" before submitting.`);
       return;
@@ -95,6 +98,12 @@ export function ReviewDetails() {
     try {
       await config.onSubmit(data);
       setStatus("submitted");
+      // Erase the identity documents from this device now that they have been
+      // handed off. Nothing did this before: `reset()` existed but was never
+      // called, so a completed application left a full set of ID scans, a
+      // proof-of-address bill and a face photo in browser storage for good —
+      // on a shared or public machine, indefinitely.
+      await purge();
       router.push("/verify/success");
     } catch {
       setError("We couldn't submit your verification. Please check your connection and try again.");

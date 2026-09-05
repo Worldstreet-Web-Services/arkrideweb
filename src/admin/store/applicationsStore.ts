@@ -28,17 +28,68 @@ function newApplicationId(): string {
 let cache: Application[] | null = null;
 const listeners = new Set<() => void>();
 
+/**
+ * Read the queue.
+ *
+ * A parse failure used to fall through to `write(seedApplications())` —
+ * destroying the entire real review queue and replacing it with six fictional
+ * applicants. One truncated write (which is exactly what a quota failure
+ * produces) was enough to lose every pending application and silently
+ * substitute demo data that a reviewer could then approve.
+ *
+ * Unreadable data is now left alone and reported as empty. Seeding happens
+ * only when the key is genuinely absent, i.e. a first visit.
+ */
 function read(): Application[] {
   if (typeof window === "undefined") return [];
+
+  let raw: string | null = null;
   try {
-    const raw = window.localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as Application[];
+    raw = window.localStorage.getItem(KEY);
   } catch {
-    /* fall through to seed */
+    // Storage disabled entirely (some private modes). Nothing to read, and
+    // nothing worth writing either.
+    return [];
   }
-  const seeded = seedApplications();
-  write(seeded);
-  return seeded;
+
+  if (raw === null) {
+    const seeded = seedApplications();
+    write(seeded);
+    return seeded;
+  }
+
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    // Validated rather than cast: an `as Application[]` on a malformed value
+    // pushes the failure downstream, where `data.guarantors.map` throws during
+    // render and takes the whole page with it.
+    if (!Array.isArray(parsed)) return [];
+    return parsed.filter(
+      (a): a is Application =>
+        typeof a === "object" && a !== null && typeof (a as Application).id === "string",
+    );
+  } catch {
+    // Corrupt. Do NOT overwrite it — a reviewer may be able to recover it, and
+    // replacing it with seed data guarantees they cannot.
+    return [];
+  }
+}
+
+/**
+ * Keep other tabs in step.
+ *
+ * The module-level `cache` is per tab and nothing invalidated it, so two open
+ * tabs each held their own copy: approving in one and rejecting in the other
+ * wrote a whole stale array over the fresh one, silently discarding the first
+ * decision. The `storage` event fires in every OTHER tab on the origin, which
+ * is exactly the signal needed.
+ */
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key !== KEY) return;
+    cache = null;
+    listeners.forEach((fn) => fn());
+  });
 }
 
 function write(list: Application[]): void {

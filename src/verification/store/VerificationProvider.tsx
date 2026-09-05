@@ -14,6 +14,7 @@ import type { VerificationConfig } from "../config";
 import { defaultConfig } from "../config";
 import { createEmptyData } from "../defaults";
 import type { VerificationData } from "../types";
+import type { SaveResult } from "./storage";
 
 /**
  * Holds the whole verification draft. State lives here (Context + useReducer),
@@ -65,6 +66,15 @@ interface VerificationContextValue {
   data: VerificationData;
   config: VerificationConfig;
   hydrated: boolean;
+  /**
+   * Set when the last autosave failed.
+   *
+   * This used to be swallowed in an empty catch while the UI kept saying
+   * "Your progress is saved automatically" — so a driver whose storage was
+   * full was told, continuously and falsely, that their work was safe. The
+   * failure is now surfaced and the step screen shows it.
+   */
+  saveError: string | null;
   update: <S extends Section>(section: S, value: Partial<VerificationData[S]>) => void;
   updateGuarantor: (
     index: number,
@@ -72,6 +82,16 @@ interface VerificationContextValue {
   ) => void;
   setStatus: (status: VerificationData["status"]) => void;
   reset: () => void;
+  /**
+   * Erase the persisted draft, keeping the in-memory copy.
+   *
+   * Called once a submission has succeeded. `reset()` cannot be used there —
+   * it also clears state, and the success screen still renders from it — which
+   * is part of why the draft was never purged at all: `reset()` had no call
+   * sites anywhere, so a completed application left a full set of identity
+   * scans on the device forever.
+   */
+  purge: () => Promise<void>;
 }
 
 const VerificationContext = createContext<VerificationContextValue | null>(null);
@@ -92,19 +112,61 @@ export function VerificationProvider({
   const [hydrated, setHydrated] = useState(false);
   const didHydrate = useRef(false);
 
-  // Hydrate once from storage (client only).
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Hydrate once from storage (client only). Async because the documents come
+  // from IndexedDB.
   useEffect(() => {
     if (didHydrate.current) return;
     didHydrate.current = true;
-    const saved = config.storage.load();
-    if (saved) dispatch({ type: "hydrate", data: saved });
-    setHydrated(true);
+
+    let cancelled = false;
+    void config.storage
+      .load()
+      .then((saved) => {
+        if (cancelled) return;
+        if (saved) dispatch({ type: "hydrate", data: saved });
+      })
+      .catch(() => {
+        // A draft that cannot be read is not a reason to block the form —
+        // starting fresh is still usable.
+      })
+      .finally(() => {
+        if (!cancelled) setHydrated(true);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [config.storage]);
 
   // Persist after hydration, on every change.
+  //
+  // Saves are serialised through `saveChain`: writes are async now, and typing
+  // fires them faster than IndexedDB completes them. Without ordering, an
+  // earlier keystroke's write can land after a later one and silently undo it.
+  const saveChain = useRef<Promise<unknown>>(Promise.resolve());
+
   useEffect(() => {
     if (!hydrated) return;
-    config.storage.save(data);
+
+    let cancelled = false;
+    saveChain.current = saveChain.current
+      .then(() => config.storage.save(data))
+      .then((result: SaveResult) => {
+        if (cancelled) return;
+        setSaveError(result.ok ? null : result.message);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setSaveError(
+          "Your progress could not be saved on this device. It will be lost if you close this tab.",
+        );
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [data, hydrated, config.storage]);
 
   const value = useMemo<VerificationContextValue>(
@@ -112,15 +174,23 @@ export function VerificationProvider({
       data,
       config,
       hydrated,
+      saveError,
       update: (section, val) => dispatch({ type: "patch", section, value: val }),
       updateGuarantor: (index, val) => dispatch({ type: "setGuarantor", index, value: val }),
       setStatus: (status) => dispatch({ type: "setStatus", status }),
+      purge: async () => {
+        await config.storage.clear();
+        setSaveError(null);
+      },
       reset: () => {
-        config.storage.clear();
+        // Fire-and-forget by design: the caller has already moved on to the
+        // success screen, and the in-memory state is cleared regardless.
+        void config.storage.clear();
+        setSaveError(null);
         dispatch({ type: "reset", data: createEmptyData(config.guarantorCount) });
       },
     }),
-    [data, config, hydrated]
+    [data, config, hydrated, saveError]
   );
 
   return <VerificationContext.Provider value={value}>{children}</VerificationContext.Provider>;
