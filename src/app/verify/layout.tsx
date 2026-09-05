@@ -7,13 +7,21 @@ export const metadata: Metadata = {
   description: "Complete your driver verification to start accepting rides.",
 };
 
-// Lock the viewport so mobile browsers don't zoom in when a form field is
-// focused (default behavior when an input's font-size is < 16px).
+/**
+ * Pinch-zoom stays enabled.
+ *
+ * This used to set `maximumScale: 1, userScalable: false` to stop iOS zooming
+ * when a field is focused. That side effect only happens when an input's
+ * font-size is under 16px, so the fix is to size the inputs correctly — not to
+ * take zoom away from everyone.
+ *
+ * Disabling zoom is a WCAG 1.4.4 failure, and this is the flow where someone
+ * photographs a document and needs to check the result is legible. Removing
+ * their ability to magnify it is precisely backwards.
+ */
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 /**

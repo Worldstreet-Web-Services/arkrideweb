@@ -33,7 +33,7 @@ export function DriverSignup() {
               <p className="text-sm font-semibold uppercase tracking-[0.08em] text-primary">
                 Drive with ArkRide
               </p>
-              <h2 className="mt-3 text-4xl font-bold text-on-inverse md:text-6xl">
+              <h2 className="mt-3 text-3xl font-bold text-on-inverse md:text-4xl">
                 Keep 95% of every fare
               </h2>
               <p className="mt-4 max-w-md text-lg text-on-inverse-muted">
@@ -75,7 +75,7 @@ export function DriverSignup() {
                   key={stat.k}
                   className="rounded-xl border border-white/10 bg-white/5 p-5"
                 >
-                  <dt className="text-4xl font-bold text-primary">{stat.k}</dt>
+                  <dt className="text-3xl font-bold text-primary">{stat.k}</dt>
                   <dd className="mt-1 text-base text-on-inverse-muted">
                     {stat.v}
                   </dd>

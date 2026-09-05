@@ -24,7 +24,7 @@ import type { VerificationData } from "@/verification/types";
  */
 export function VerifyProvider({ children }: { children: ReactNode }) {
   const onSubmit = useCallback(async (data: VerificationData) => {
-    applicationsStore.add(data, new Date().toISOString());
+    await applicationsStore.add(data, new Date().toISOString());
   }, []);
 
   const config = useMemo(() => ({ onSubmit }), [onSubmit]);

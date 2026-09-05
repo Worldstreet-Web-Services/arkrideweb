@@ -54,7 +54,7 @@ export function LicenseForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="Driver's license — front" error={errors.front} required>
+      <FormField label="Driver's license — front" error={errors.front} required group>
         <FileUpload
           value={l.front}
           onChange={(f) => update("license", { front: f })}
@@ -63,7 +63,7 @@ export function LicenseForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="Driver's license — back" hint="Optional, if applicable">
+      <FormField label="Driver's license — back" hint="Optional, if applicable" group>
         <FileUpload
           value={l.back}
           onChange={(f) => update("license", { back: f })}

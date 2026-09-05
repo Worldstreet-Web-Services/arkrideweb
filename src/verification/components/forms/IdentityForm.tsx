@@ -23,7 +23,7 @@ export function IdentityForm({ errors }: { errors: FieldErrors }) {
 
   return (
     <>
-      <FormField label="Identification type" error={errors.idType} required>
+      <FormField label="Identification type" error={errors.idType} required group>
         <RadioGroup
           name="idType"
           value={i.idType}
@@ -54,7 +54,7 @@ export function IdentityForm({ errors }: { errors: FieldErrors }) {
         </FormField>
       )}
 
-      <FormField label="Identification document" error={errors.document} required>
+      <FormField label="Identification document" error={errors.document} required group>
         <FileUpload
           value={i.document}
           onChange={(f) => update("identity", { document: f })}

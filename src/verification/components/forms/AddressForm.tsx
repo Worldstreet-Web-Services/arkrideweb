@@ -53,7 +53,7 @@ export function AddressForm({ errors }: { errors: FieldErrors }) {
         hint="Utility bill, bank statement or government-issued address document"
         error={errors.proofOfAddress}
         required
-      >
+       group>
         <FileUpload
           value={a.proofOfAddress}
           onChange={(f) => update("address", { proofOfAddress: f })}

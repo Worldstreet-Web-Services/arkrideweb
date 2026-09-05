@@ -119,28 +119,44 @@
                 "Segoe UI", Roboto, sans-serif;
   --font-mono:  ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Scale measured off the mobile screens. Note how small it runs: 10-14px
-     carries most of this interface, with exactly ONE large number per screen
-     (fare, balance, earnings). Resist inflating these. */
+  /* TYPE SCALE
+     ----------
+     The mobile app runs small — 12px captions, 14px body — because that is
+     right for a phone held at arm's length. It is NOT right here, and an
+     earlier version of this file redefined Tailwind's standard names to those
+     phone values.
+
+     That was a silent, global change under 3,748 lines of portal code written
+     against the defaults: `text-sm` went 14px -> 12px, `text-3xl` 30px -> 22px,
+     a 27% shrink nobody asked for. Meanwhile the hardcoded `text-[15px]` and
+     `text-[13px]` in the same files did not move, so labels ended up LARGER
+     than the body text beneath them.
+
+     So the standard names keep their standard meanings. Anything Tailwind does
+     not already define is an ArkRide addition and is free to be its own size —
+     which is where the phone scale lives, for the app surfaces that want it. */
+  --text-xs:     0.75rem;   /* 12px */
+  --text-sm:     0.875rem;  /* 14px */
+  --text-base:   1rem;      /* 16px — BODY */
+  --text-lg:     1.125rem;  /* 18px */
+  --text-xl:     1.25rem;   /* 20px */
+  --text-2xl:    1.5rem;    /* 24px */
+  --text-3xl:    1.875rem;  /* 30px */
+  --text-4xl:    2.25rem;   /* 36px */
+  --text-5xl:    3rem;      /* 48px */
+  --text-6xl:    3.75rem;   /* 60px */
+  --text-7xl:    4.5rem;    /* 72px */
+  --text-8xl:    6rem;      /* 96px */
+  --text-9xl:    8rem;      /* 128px */
+
+  /* ArkRide additions — names Tailwind does not define, so nothing is
+     overridden. These carry the values measured off the mobile screens. */
   --text-nano:   0.5rem;    /*  8px — legal, micro badges           */
   --text-2xs:    0.625rem;  /* 10px — labels, card subtitles        */
-  --text-xs:     0.6875rem; /* 11px — addresses, meta               */
-  --text-sm:     0.75rem;   /* 12px — captions, dates               */
-  --text-base:   0.875rem;  /* 14px — BODY. the workhorse size      */
   --text-md:     0.9375rem; /* 15px — list names, section titles    */
-  --text-lg:     1rem;      /* 16px — button labels, card titles    */
-  --text-xl:     1.125rem;  /* 18px — page header titles            */
-  --text-2xl:    1.25rem;   /* 20px — sheet titles                  */
-  --text-3xl:    1.375rem;  /* 22px — auth headings                 */
-  --text-4xl:    1.5rem;    /* 24px — screen headings               */
-  --text-5xl:    1.6875rem; /* 27px — onboarding headline           */
-  --text-6xl:    1.875rem;  /* 30px — home greeting                 */
-  --text-7xl:    2rem;      /* 32px — role-select headline          */
-  --text-8xl:    2.125rem;  /* 34px — wallet balance hero           */
-  --text-9xl:    2.5rem;    /* 40px — driver earnings hero          */
   --text-10xl:   4rem;      /* 64px — SOS countdown                 */
 
-  /* Web adds a display tier the phone has no room for. */
+  /* Display tier for marketing headlines. */
   --text-display-sm: 2.5rem;   /* 40px */
   --text-display:    3.25rem;  /* 52px */
   --text-display-lg: 4.25rem;  /* 68px */

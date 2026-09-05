@@ -39,7 +39,7 @@ export async function Numbers() {
             <div key={item.label} className="text-center">
               <dt className="sr-only">{item.label}</dt>
               <dd>
-                <span className="block text-7xl font-bold text-text">
+                <span className="block text-4xl font-bold text-text md:text-5xl">
                   {format(item.value)}
                   <span aria-hidden="true" className="text-primary">
                     +

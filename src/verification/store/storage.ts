@@ -1,5 +1,8 @@
 import type { VerificationData } from "../types";
 import * as blobs from "./blobStore";
+import { extractBlobs, rehydrateBlobs, isSafeDataUrl } from "./blobSplit";
+
+export { isSafeDataUrl };
 
 /**
  * Persistence boundary for the verification SDK.
@@ -30,118 +33,6 @@ export interface StorageAdapter {
 
 const KEY = "arkride.verification.v1";
 
-/**
- * A file slot, as stored in the draft.
- *
- * Matched structurally rather than by a hardcoded list of the 18 known slots,
- * so guarantor documents and the vehicle photo array are handled by the same
- * code, and a new slot needs no change here.
- */
-interface FileLike {
-  name: string;
-  type: string;
-  size: number;
-  dataUrl: string;
-}
-
-function isFileLike(value: unknown): value is FileLike {
-  return (
-    typeof value === "object" &&
-    value !== null &&
-    typeof (value as FileLike).dataUrl === "string" &&
-    typeof (value as FileLike).name === "string"
-  );
-}
-
-/**
- * Only these schemes are ever stored or returned.
- *
- * A `dataUrl` is read back out of browser storage and then rendered into
- * `<img src>` and `<a href>` in both the driver's portal and the reviewer's.
- * Anything that can write to that storage — a compromised extension, a shared
- * machine, or the driver themselves once this is server-backed — could set it
- * to `javascript:…` and have it execute in a reviewer's session on click.
- *
- * Checking the scheme on the way in AND the way out means a value that
- * predates this check, or was written around it, still cannot reach the DOM.
- */
-const ALLOWED_PREFIXES = [
-  "data:image/jpeg",
-  "data:image/jpg",
-  "data:image/png",
-  "data:image/webp",
-  "data:application/pdf",
-];
-
-export function isSafeDataUrl(url: unknown): url is string {
-  return (
-    typeof url === "string" && ALLOWED_PREFIXES.some((p) => url.startsWith(p))
-  );
-}
-
-/**
- * Walk the draft, swapping every `dataUrl` for a reference.
- *
- * Returns the stripped draft plus the extracted blobs keyed by their path in
- * the object, e.g. `identity.idDocument` or `vehicle.photos.2`. The path is
- * stable across saves, so re-saving overwrites rather than accumulating.
- */
-function extract(
-  value: unknown,
-  path: string,
-  out: Map<string, string>,
-): unknown {
-  if (Array.isArray(value)) {
-    return value.map((item, i) => extract(item, `${path}.${i}`, out));
-  }
-
-  if (isFileLike(value)) {
-    if (!isSafeDataUrl(value.dataUrl)) {
-      // Drop rather than store. A slot with an unusable URL reads as "not
-      // uploaded", which is recoverable; storing it is not.
-      return { ...value, dataUrl: "" };
-    }
-    out.set(path, value.dataUrl);
-    return { ...value, dataUrl: "" };
-  }
-
-  if (typeof value === "object" && value !== null) {
-    const result: Record<string, unknown> = {};
-    for (const [key, child] of Object.entries(value)) {
-      result[key] = extract(child, path ? `${path}.${key}` : key, out);
-    }
-    return result;
-  }
-
-  return value;
-}
-
-/** The inverse: put the blobs back where they came from. */
-function rehydrate(
-  value: unknown,
-  path: string,
-  blobsByPath: Map<string, string>,
-): unknown {
-  if (Array.isArray(value)) {
-    return value.map((item, i) => rehydrate(item, `${path}.${i}`, blobsByPath));
-  }
-
-  if (isFileLike(value)) {
-    const stored = blobsByPath.get(path);
-    return { ...value, dataUrl: isSafeDataUrl(stored) ? stored : "" };
-  }
-
-  if (typeof value === "object" && value !== null) {
-    const result: Record<string, unknown> = {};
-    for (const [key, child] of Object.entries(value)) {
-      result[key] = rehydrate(child, path ? `${path}.${key}` : key, blobsByPath);
-    }
-    return result;
-  }
-
-  return value;
-}
-
 export const localStorageAdapter: StorageAdapter = {
   async load() {
     if (typeof window === "undefined") return null;
@@ -158,8 +49,8 @@ export const localStorageAdapter: StorageAdapter = {
     }
 
     try {
-      const stored = await blobs.getAll();
-      return rehydrate(draft, "", stored) as VerificationData;
+      const stored = await blobs.getAll(blobs.DRAFT_STORE);
+      return rehydrateBlobs(draft, stored);
     } catch {
       // The text fields are worth returning even if the documents are not
       // readable — losing nine typed pages because IndexedDB is unavailable
@@ -172,13 +63,13 @@ export const localStorageAdapter: StorageAdapter = {
     if (typeof window === "undefined") return { ok: true };
 
     const extracted = new Map<string, string>();
-    const stripped = extract(data, "", extracted) as VerificationData;
+    const stripped = extractBlobs(data, extracted);
 
     try {
       // Documents first. If they fail, the draft is not updated to claim they
       // were stored — the two halves stay consistent.
-      await blobs.putAll(extracted);
-      await blobs.removeMissing(new Set(extracted.keys()));
+      await blobs.putAll(blobs.DRAFT_STORE, extracted);
+      await blobs.removeMissing(blobs.DRAFT_STORE, new Set(extracted.keys()));
     } catch (error) {
       return {
         ok: false,
@@ -211,7 +102,7 @@ export const localStorageAdapter: StorageAdapter = {
       /* Nothing useful to do — the draft is already unreachable. */
     }
     try {
-      await blobs.clearAll();
+      await blobs.clearAll(blobs.DRAFT_STORE);
     } catch {
       /* As above. */
     }

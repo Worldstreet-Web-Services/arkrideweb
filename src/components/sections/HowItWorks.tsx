@@ -34,7 +34,7 @@ export function HowItWorks() {
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-text-subtle">
             How it works
           </p>
-          <h2 className="mt-3 text-4xl font-bold text-text md:text-6xl">
+          <h2 className="mt-3 text-3xl font-bold text-text md:text-4xl">
             Three taps from here to there
           </h2>
         </div>

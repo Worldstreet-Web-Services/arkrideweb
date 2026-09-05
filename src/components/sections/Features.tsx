@@ -44,7 +44,7 @@ export function Features() {
           <p className="text-sm font-semibold uppercase tracking-[0.08em] text-text-subtle">
             Features
           </p>
-          <h2 className="mt-3 text-4xl font-bold text-text md:text-6xl">
+          <h2 className="mt-3 text-3xl font-bold text-text md:text-4xl">
             Built for how Lagos actually moves
           </h2>
         </div>

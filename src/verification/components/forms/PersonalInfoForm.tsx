@@ -51,7 +51,7 @@ export function PersonalInfoForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="Gender" error={errors.gender} required>
+      <FormField label="Gender" error={errors.gender} required group>
         <RadioGroup
           name="gender"
           value={p.gender}
@@ -103,7 +103,7 @@ export function PersonalInfoForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="Profile photograph" error={errors.profilePhoto} required>
+      <FormField label="Profile photograph" error={errors.profilePhoto} required group>
         <FileUpload
           value={p.profilePhoto}
           onChange={(f) => update("personal", { profilePhoto: f })}

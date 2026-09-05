@@ -15,7 +15,7 @@ export function VehicleDocumentsForm({ errors }: { errors: FieldErrors }) {
 
   return (
     <>
-      <FormField label="Vehicle registration" error={errors.registration} required>
+      <FormField label="Vehicle registration" error={errors.registration} required group>
         <FileUpload
           value={d.registration}
           onChange={(f) => update("vehicleDocuments", { registration: f })}
@@ -24,7 +24,7 @@ export function VehicleDocumentsForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="Insurance" error={errors.insurance} required>
+      <FormField label="Insurance" error={errors.insurance} required group>
         <FileUpload
           value={d.insurance}
           onChange={(f) => update("vehicleDocuments", { insurance: f })}
@@ -33,7 +33,7 @@ export function VehicleDocumentsForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="Roadworthiness certificate" error={errors.roadworthiness} required>
+      <FormField label="Roadworthiness certificate" error={errors.roadworthiness} required group>
         <FileUpload
           value={d.roadworthiness}
           onChange={(f) => update("vehicleDocuments", { roadworthiness: f })}
@@ -42,7 +42,7 @@ export function VehicleDocumentsForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <FormField label="FRSC / other documentation" hint="Optional">
+      <FormField label="FRSC / other documentation" hint="Optional" group>
         <FileUpload
           value={d.frsc}
           onChange={(f) => update("vehicleDocuments", { frsc: f })}

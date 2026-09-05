@@ -3,7 +3,8 @@
 import { cn } from "@/lib/utils";
 import { useRef, useState } from "react";
 import type { UploadedFile } from "../../types";
-import { checkFile } from "../../validation";
+import { checkFileContents } from "../../validation";
+import { useFieldContext } from "./FormField";
 import { CameraIcon, CheckIcon, EyeIcon, FileIcon, ReplaceIcon, TrashIcon, UploadIcon } from "../icons";
 import { processFile } from "./processFile";
 
@@ -25,6 +26,8 @@ export function FileUpload({
   compact?: boolean;
   invalid?: boolean;
 }) {
+  const field = useFieldContext();
+
   const cameraRef = useRef<HTMLInputElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
@@ -34,13 +37,16 @@ export function FileUpload({
   const handleFiles = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file) return;
-    const problem = checkFile(file);
+    // Async now: the content check reads the file's leading bytes, because
+    // `file.type` is only the browser guessing from the filename.
+    setBusy(true);
+    const problem = await checkFileContents(file);
     if (problem) {
       setError(problem);
+      setBusy(false);
       return;
     }
     setError(null);
-    setBusy(true);
     try {
       onChange(await processFile(file));
     } catch {
@@ -60,9 +66,10 @@ export function FileUpload({
       <input
         ref={cameraRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png"
         capture="environment"
         hidden
+        aria-label={`Take a photo of ${label.toLowerCase()}`}
         onChange={(e) => handleFiles(e.target.files)}
       />
       <input
@@ -70,11 +77,15 @@ export function FileUpload({
         type="file"
         accept="image/jpeg,image/png,application/pdf"
         hidden
+        aria-label={`Choose a file for ${label.toLowerCase()}`}
         onChange={(e) => handleFiles(e.target.files)}
       />
 
       {!value ? (
         <div
+          role="group"
+          aria-labelledby={field?.labelId}
+          aria-describedby={field?.describedBy}
           onDragOver={(e) => {
             e.preventDefault();
             setDragOver(true);
@@ -86,13 +97,13 @@ export function FileUpload({
             handleFiles(e.dataTransfer.files);
           }}
           className={cn(
-            "flex flex-col items-center rounded-2xl border border-dashed bg-white text-center transition-colors",
+            "flex flex-col items-center rounded-2xl border border-dashed bg-surface text-center transition-colors",
             compact ? "gap-2 p-4" : "gap-3 px-4 py-6",
             dragOver
-              ? "border-neutral-900 bg-neutral-50"
-              : invalid
-                ? "border-red-400"
-                : "border-neutral-300 hover:border-neutral-400"
+              ? "border-text bg-surface-hover"
+              : invalid || field?.invalid
+                ? "border-danger"
+                : "border-border-strong hover:border-text-subtle"
           )}
         >
           <span

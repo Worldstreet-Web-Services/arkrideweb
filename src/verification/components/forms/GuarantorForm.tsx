@@ -94,7 +94,7 @@ export function GuarantorForm({ errors }: { errors: FieldErrors }) {
               />
             </FormField>
 
-            <FormField label="ID document" error={e("idDocument")} required>
+            <FormField label="ID document" error={e("idDocument")} required group>
               <FileUpload
                 value={g.idDocument}
                 onChange={(f) => updateGuarantor(idx, { idDocument: f })}
@@ -103,7 +103,7 @@ export function GuarantorForm({ errors }: { errors: FieldErrors }) {
               />
             </FormField>
 
-            <FormField label="Photograph" error={e("photograph")} required>
+            <FormField label="Photograph" error={e("photograph")} required group>
               <FileUpload
                 value={g.photograph}
                 onChange={(f) => updateGuarantor(idx, { photograph: f })}

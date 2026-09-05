@@ -30,8 +30,21 @@
  */
 
 const DB_NAME = "arkride-verification";
-const DB_VERSION = 1;
-const STORE = "documents";
+const DB_VERSION = 2;
+
+/**
+ * Two separate object stores, deliberately.
+ *
+ * `documents` holds the driver's in-progress draft and is wiped by `purge()`
+ * once they submit. `applications` holds the documents attached to submitted
+ * applications, which the reviewer still needs. Sharing one store — even with
+ * namespaced keys — would mean purging the draft destroyed the evidence for
+ * the application that was just filed.
+ */
+export const DRAFT_STORE = "documents";
+export const APPLICATION_STORE = "applications";
+
+type StoreName = typeof DRAFT_STORE | typeof APPLICATION_STORE;
 
 /** Blobs are held as data URLs so nothing downstream has to change. */
 type Stored = string;
@@ -41,8 +54,8 @@ function openDb(): Promise<IDBDatabase> {
     const request = indexedDB.open(DB_NAME, DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
-      if (!db.objectStoreNames.contains(STORE)) {
-        db.createObjectStore(STORE);
+      for (const name of [DRAFT_STORE, APPLICATION_STORE]) {
+        if (!db.objectStoreNames.contains(name)) db.createObjectStore(name);
       }
     };
     request.onsuccess = () => resolve(request.result);
@@ -60,14 +73,15 @@ export function isAvailable(): boolean {
 }
 
 async function withStore<T>(
+  name: StoreName,
   mode: IDBTransactionMode,
   fn: (store: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T> {
   const db = await openDb();
   try {
     return await new Promise<T>((resolve, reject) => {
-      const tx = db.transaction(STORE, mode);
-      const request = fn(tx.objectStore(STORE));
+      const tx = db.transaction(name, mode);
+      const request = fn(tx.objectStore(name));
       request.onsuccess = () => resolve(request.result);
       request.onerror = () => reject(request.error);
       // A quota failure surfaces on the transaction, not the request, so
@@ -86,14 +100,17 @@ async function withStore<T>(
  * quota failure partway through rolls the whole thing back instead of leaving
  * a draft that references documents which were never stored.
  */
-export async function putAll(entries: Map<string, Stored>): Promise<void> {
+export async function putAll(
+  name: StoreName,
+  entries: Map<string, Stored>,
+): Promise<void> {
   if (!isAvailable() || entries.size === 0) return;
 
   const db = await openDb();
   try {
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE, "readwrite");
-      const store = tx.objectStore(STORE);
+      const tx = db.transaction(name, "readwrite");
+      const store = tx.objectStore(name);
       for (const [key, value] of entries) store.put(value, key);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
@@ -104,14 +121,14 @@ export async function putAll(entries: Map<string, Stored>): Promise<void> {
   }
 }
 
-export async function getAll(): Promise<Map<string, Stored>> {
+export async function getAll(name: StoreName): Promise<Map<string, Stored>> {
   if (!isAvailable()) return new Map();
 
   const db = await openDb();
   try {
     return await new Promise<Map<string, Stored>>((resolve, reject) => {
-      const tx = db.transaction(STORE, "readonly");
-      const store = tx.objectStore(STORE);
+      const tx = db.transaction(name, "readonly");
+      const store = tx.objectStore(name);
       const out = new Map<string, Stored>();
       const cursorRequest = store.openCursor();
 
@@ -134,17 +151,20 @@ export async function getAll(): Promise<Map<string, Stored>> {
 }
 
 /** Remove keys that are no longer referenced by the draft. */
-export async function removeMissing(keep: Set<string>): Promise<void> {
+export async function removeMissing(
+  name: StoreName,
+  keep: Set<string>,
+): Promise<void> {
   if (!isAvailable()) return;
-  const existing = await getAll();
+  const existing = await getAll(name);
   const stale = [...existing.keys()].filter((k) => !keep.has(k));
   if (stale.length === 0) return;
 
   const db = await openDb();
   try {
     await new Promise<void>((resolve, reject) => {
-      const tx = db.transaction(STORE, "readwrite");
-      const store = tx.objectStore(STORE);
+      const tx = db.transaction(name, "readwrite");
+      const store = tx.objectStore(name);
       for (const key of stale) store.delete(key);
       tx.oncomplete = () => resolve();
       tx.onerror = () => reject(tx.error);
@@ -161,7 +181,7 @@ export async function removeMissing(keep: Set<string>): Promise<void> {
  * forever — `reset()` existed but had no call sites — so a shared or public
  * machine kept a full set of someone's identity scans indefinitely.
  */
-export async function clearAll(): Promise<void> {
+export async function clearAll(name: StoreName): Promise<void> {
   if (!isAvailable()) return;
-  await withStore("readwrite", (store) => store.clear());
+  await withStore(name, "readwrite", (store) => store.clear());
 }

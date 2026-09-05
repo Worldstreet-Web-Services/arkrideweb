@@ -17,7 +17,7 @@ export function GetTheApp() {
     <section id="get-the-app" className="scroll-mt-24 pb-24 md:pb-32">
       <Container>
         <div className="mx-auto max-w-2xl rounded-3xl border border-border bg-surface px-6 py-14 text-center md:px-14">
-          <h2 className="text-4xl font-bold text-text md:text-6xl">
+          <h2 className="text-3xl font-bold text-text md:text-4xl">
             No app? Book on WhatsApp
           </h2>
           <p className="mx-auto mt-4 max-w-md text-lg text-text-muted">

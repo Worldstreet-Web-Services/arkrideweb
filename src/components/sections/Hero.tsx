@@ -34,7 +34,7 @@ export function Hero() {
             Now rolling across Lagos
           </p>
 
-          <h1 className="mt-6 text-6xl font-bold leading-tight text-text sm:text-7xl md:text-display">
+          <h1 className="mt-6 text-4xl font-bold leading-tight text-text sm:text-5xl md:text-display">
             Move at the
             <br />
             speed of now

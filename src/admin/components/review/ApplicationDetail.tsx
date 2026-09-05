@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -16,7 +15,7 @@ import { applicationsStore } from "@/admin/store/applicationsStore";
 import { formatDateTime } from "@/admin/format";
 import { applicantName, type Application, type SectionFlag } from "@/admin/types";
 import { StatusBadge } from "../StatusBadge";
-import { SectionCard, type Doc, type Row } from "./SectionCard";
+import { SectionCard, type Row } from "./SectionCard";
 
 const ID_LABEL: Record<IdType | "", string> = {
   nin: "NIN",
@@ -43,7 +42,6 @@ export function ApplicationDetail({
   application: Application;
   reviewerName: string;
 }) {
-  const router = useRouter();
   const d = a.data;
   const decided = a.status !== "submitted";
 
@@ -74,19 +72,35 @@ export function ApplicationDetail({
     [flags]
   );
 
-  const doApprove = () => {
-    applicationsStore.approve(a.id, reviewerName);
-    setDialog(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+
+  /**
+   * Recording a decision can now fail loudly instead of quietly.
+   *
+   * Without this the throw would be swallowed by React's event handling and
+   * the reviewer would watch the dialog close with nothing recorded — the
+   * worst outcome on a screen that decides whether someone can work.
+   */
+  const record = (fn: () => void) => {
+    try {
+      fn();
+      setActionError(null);
+      setDialog(null);
+    } catch {
+      setActionError(
+        "That decision could not be saved. Check your connection and try again.",
+      );
+    }
   };
+
+  const doApprove = () => record(() => applicationsStore.approve(a.id, reviewerName));
   const doReject = () => {
     if (!reason.trim()) return;
-    applicationsStore.reject(a.id, reason.trim(), reviewerName);
-    setDialog(null);
+    record(() => applicationsStore.reject(a.id, reason.trim(), reviewerName));
   };
   const doRequestChanges = () => {
     if (flagList.length === 0) return;
-    applicationsStore.requestChanges(a.id, flagList, reviewerName);
-    setDialog(null);
+    record(() => applicationsStore.requestChanges(a.id, flagList, reviewerName));
   };
 
   const sectionProps = (key: string, label: string) => ({
@@ -268,9 +282,16 @@ export function ApplicationDetail({
       </div>
 
       {/* Sticky decision bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-neutral-200 bg-white/95 px-6 py-3.5 backdrop-blur">
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-surface/95 px-6 py-3.5 backdrop-blur">
+        {actionError && (
+          <div className="mx-auto mb-3 w-full max-w-320" role="alert">
+            <p className="rounded-2xl border border-danger-border bg-danger-tint px-4 py-2.5 text-sm font-medium text-danger">
+              {actionError}
+            </p>
+          </div>
+        )}
         <div className="mx-auto flex w-full max-w-320 items-center justify-between gap-3">
-          <p className="hidden text-sm text-neutral-500 sm:block">
+          <p className="hidden text-sm text-text-muted sm:block">
             {flagList.length > 0
               ? `${flagList.length} change${flagList.length > 1 ? "s" : ""} flagged`
               : "Review the details, then decide"}
@@ -279,7 +300,7 @@ export function ApplicationDetail({
             <button
               type="button"
               onClick={() => setDialog("reject")}
-              className="inline-flex items-center gap-1.5 rounded-full border border-red-200 px-4 py-2.5 text-sm font-semibold text-red-600 transition-colors hover:bg-red-50"
+              className="inline-flex items-center gap-1.5 rounded-pill border border-danger-border px-4 py-2.5 text-sm font-semibold text-danger transition-colors hover:bg-danger-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger"
             >
               <WarningIcon size={16} /> Reject
             </button>
@@ -287,14 +308,14 @@ export function ApplicationDetail({
               type="button"
               onClick={() => setDialog("changes")}
               disabled={flagList.length === 0}
-              className="inline-flex items-center gap-1.5 rounded-full border border-neutral-200 px-4 py-2.5 text-sm font-semibold text-neutral-700 transition-colors hover:border-neutral-300 disabled:opacity-40 disabled:pointer-events-none"
+              className="inline-flex items-center gap-1.5 rounded-pill border border-border-input px-4 py-2.5 text-sm font-semibold text-text-soft transition-colors hover:border-border-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-40 disabled:pointer-events-none"
             >
               <ReplaceIcon size={16} /> Request changes
             </button>
             <button
               type="button"
               onClick={() => setDialog("approve")}
-              className="inline-flex items-center gap-1.5 rounded-full bg-neutral-900 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-neutral-800"
+              className="inline-flex items-center gap-1.5 rounded-pill bg-primary px-5 py-2.5 text-sm font-bold text-on-primary shadow-primary transition-colors hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
             >
               <CheckIcon size={16} /> Approve
             </button>
