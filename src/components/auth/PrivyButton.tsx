@@ -26,6 +26,7 @@ export function PrivyButton({
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [stalled, setStalled] = useState(false);
 
   // Hooks must run unconditionally, so the config check gates the render
   // below rather than the hook calls.
@@ -92,6 +93,28 @@ export function PrivyButton({
     void exchange();
   }, [ready, authenticated, busy, exchange]);
 
+  /**
+   * Give up waiting on Privy after 8 seconds.
+   *
+   * `ready` stays false forever if the SDK cannot reach its API — a blocked
+   * request, an offline network, an ad blocker, or (as happened here) a
+   * Content-Security-Policy that omits `auth.privy.io`. The button then sits
+   * on "Loading…" with no explanation, which reads as the app being broken.
+   *
+   * Password sign-in is right above it and works regardless, so the honest
+   * thing is to say this option is unavailable and let people use that.
+   */
+  useEffect(() => {
+    // No state is cleared when `ready` turns true: every read of `stalled`
+    // below is already behind a `!ready` check, so a stale true is invisible.
+    // Setting it here would be a synchronous setState inside an effect, which
+    // costs an extra render pass for nothing.
+    if (ready) return;
+
+    const timer = setTimeout(() => setStalled(true), 8_000);
+    return () => clearTimeout(timer);
+  }, [ready]);
+
   const onClick = async () => {
     if (!ready) return;
     initiated.current = true;
@@ -110,7 +133,9 @@ export function PrivyButton({
   // Once Privy has authenticated, the exchange is the remaining step — so the
   // button says so rather than reopening the modal.
   const label = !ready
-    ? "Loading…"
+    ? stalled
+      ? "Unavailable right now"
+      : "Loading…"
     : busy
       ? "Signing in…"
       : authenticated
@@ -123,15 +148,19 @@ export function PrivyButton({
         type="button"
         onClick={onClick}
         disabled={!ready || busy}
-        aria-busy={busy}
+        aria-busy={busy || (!ready && !stalled)}
         className="h-12 w-full rounded-pill border border-border-strong bg-surface text-[15px] font-semibold text-text transition hover:border-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60"
       >
         {label}
       </button>
 
       <div role="alert" className="empty:hidden">
-        {error && (
-          <p className="text-xs font-medium text-danger">{error}</p>
+        {error && <p className="text-xs font-medium text-danger">{error}</p>}
+        {!error && stalled && !ready && (
+          <p className="text-xs text-text-muted">
+            We couldn&rsquo;t reach the sign-in provider. Use your email and
+            password above instead.
+          </p>
         )}
       </div>
     </div>
