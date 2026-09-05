@@ -4,6 +4,7 @@ import { HowItWorks } from "@/components/sections/HowItWorks";
 import { Features } from "@/components/sections/Features";
 import { DriverSignup } from "@/components/sections/DriverSignup";
 import { GetTheApp } from "@/components/sections/GetTheApp";
+import { Numbers } from "@/components/sections/Numbers";
 
 export const metadata: Metadata = {
   // The root layout sets a `%s · ArkRide` template; the landing page wants the
@@ -24,6 +25,8 @@ export default function Home() {
   return (
     <>
       <Hero />
+      {/* Live from the API. Renders nothing until there are real numbers. */}
+      <Numbers />
       <HowItWorks />
       <Features />
       <DriverSignup />
