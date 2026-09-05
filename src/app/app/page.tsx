@@ -37,7 +37,7 @@ export default async function RiderHome() {
     <div className="grid gap-6">
       {active ? (
         <section>
-          <h1 className="text-2xl font-extrabold tracking-tight text-text">
+          <h1 className="text-2xl font-bold tracking-tight text-text">
             Your ride
           </h1>
           <p className="mt-1 text-[15px] text-text-muted">

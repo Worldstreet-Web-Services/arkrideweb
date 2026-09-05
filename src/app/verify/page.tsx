@@ -17,21 +17,21 @@ export default function VerificationWelcome() {
 
   return (
     <div className="step-in pt-4">
-      <p className="text-sm font-semibold uppercase tracking-wide text-neutral-400">Driver Verification</p>
-      <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight text-neutral-900">
+      <p className="text-sm font-semibold uppercase tracking-wide text-text-subtle">Driver Verification</p>
+      <h1 className="mt-2 text-3xl font-bold leading-tight tracking-tight text-text">
         Complete your verification
       </h1>
-      <p className="mt-3 text-base leading-relaxed text-neutral-500">
+      <p className="mt-3 text-base leading-relaxed text-text-muted">
         Provide your details and documents so we can verify your identity and vehicle before you start
         accepting rides.
       </p>
 
       {/* Meta chips */}
       <div className="mt-5 flex flex-wrap gap-2">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-semibold text-neutral-600">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-3 py-1.5 text-xs font-semibold text-text-muted">
           <ClockIcon size={14} /> About 10 minutes
         </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-neutral-100 px-3 py-1.5 text-xs font-semibold text-neutral-600">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-sunken px-3 py-1.5 text-xs font-semibold text-text-muted">
           <LockIcon size={14} /> Private to you on this device
         </span>
       </div>
@@ -39,12 +39,12 @@ export default function VerificationWelcome() {
       {started && (
         <div className="mt-6">
           <div className="mb-2 flex justify-between">
-            <span className="text-sm font-semibold text-neutral-900">Your progress</span>
-            <span className="text-sm font-semibold text-neutral-900">{pct}% Complete</span>
+            <span className="text-sm font-semibold text-text">Your progress</span>
+            <span className="text-sm font-semibold text-text">{pct}% Complete</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
+          <div className="h-1.5 overflow-hidden rounded-full bg-surface-sunken">
             <div
-              className="h-full rounded-full bg-neutral-900 transition-[width] duration-500 ease-out"
+              className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -57,18 +57,18 @@ export default function VerificationWelcome() {
           return (
             <li
               key={s.id}
-              className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white px-4 py-3.5 shadow-[0_1px_2px_rgba(0,0,0,0.04)]"
+              className="flex items-center gap-3 rounded-2xl border border-border-input bg-surface px-4 py-3.5 shadow-sm"
             >
               {done ? (
-                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-neutral-900 text-white">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full bg-surface-inverse text-white">
                   <CheckIcon size={14} />
                 </span>
               ) : (
-                <span className="grid size-6 shrink-0 place-items-center rounded-full border-[1.5px] border-neutral-200 text-[12px] font-bold text-neutral-400">
+                <span className="grid size-6 shrink-0 place-items-center rounded-full border-[1.5px] border-border-input text-[12px] font-bold text-text-subtle">
                   {i + 1}
                 </span>
               )}
-              <span className="text-[15px] font-medium text-neutral-900">{s.title}</span>
+              <span className="text-[15px] font-medium text-text">{s.title}</span>
             </li>
           );
         })}

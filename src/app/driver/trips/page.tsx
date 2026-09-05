@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/app/EmptyState";
 import { RideCard } from "@/components/app/RideCard";
 import { getDriverRides } from "@/lib/api/rides";
 import { requireDriver } from "@/lib/api/guards";
@@ -8,18 +9,25 @@ export default async function DriverTripsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold tracking-tight text-text">Trips</h1>
-      <p className="mt-1 text-[15px] text-text-muted">
-        {rides.length === 0
-          ? "You haven't completed a trip yet."
-          : `${rides.length} trip${rides.length === 1 ? "" : "s"}.`}
-      </p>
-
-      {rides.length > 0 && (
-        <div className="mt-5 grid gap-2.5">
-          {rides.map((r) => (
-            <RideCard key={r.id} ride={r} href={`/driver/trips/${r.id}`} />
-          ))}
+      <h1 className="text-2xl font-bold tracking-tight text-text">Trips</h1>
+      {rides.length > 0 ? (
+        <>
+          <p className="mt-1 text-[15px] text-text-muted">
+            {rides.length} trip{rides.length === 1 ? "" : "s"}.
+          </p>
+          <div className="mt-5 grid gap-2.5">
+            {rides.map((r) => (
+              <RideCard key={r.id} ride={r} href={`/driver/trips/${r.id}`} />
+            ))}
+          </div>
+        </>
+      ) : (
+        <div className="mt-6">
+          <EmptyState
+            title="No trips yet"
+            body="Go online and accepted rides will appear here."
+            action={{ href: "/driver", label: "Go to console" }}
+          />
         </div>
       )}
     </div>

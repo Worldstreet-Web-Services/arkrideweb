@@ -42,7 +42,7 @@ export function AdminHeader({ reviewerName }: { reviewerName: string }) {
         >
           <ArkLogo className="h-7 w-auto text-text" aria-hidden />
           <span className="sr-only">Arkride admin — back to applications</span>
-          <span aria-hidden className="text-lg font-extrabold tracking-tight text-text">
+          <span aria-hidden className="text-lg font-bold tracking-tight text-text">
             Arkride
           </span>
         </Link>

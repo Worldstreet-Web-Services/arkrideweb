@@ -34,7 +34,7 @@ export default function Error({
   return (
     <main className="grid min-h-dvh place-items-center bg-bg px-5 py-16">
       <div className="w-full max-w-110 text-center">
-        <h1 className="text-2xl font-extrabold tracking-tight text-text">
+        <h1 className="text-2xl font-bold tracking-tight text-text">
           Something went wrong
         </h1>
         <p className="mt-2 text-[15px] text-text-muted">

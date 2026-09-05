@@ -25,7 +25,7 @@ export function AppNav({
           className="flex shrink-0 items-center gap-2.5 rounded-pill focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
         >
           <ArkLogo className="h-7 w-auto text-text" aria-hidden />
-          <span className="text-lg font-extrabold tracking-tight text-text">
+          <span className="text-lg font-bold tracking-tight text-text">
             Arkride
           </span>
         </Link>

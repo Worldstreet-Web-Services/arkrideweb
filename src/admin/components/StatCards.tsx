@@ -19,7 +19,7 @@ export function StatCards({ applications }: { applications: Application[] }) {
             <span className={cn("size-2 rounded-full", t.dot)} aria-hidden />
             <span className="text-xs font-semibold text-text-muted">{t.label}</span>
           </div>
-          <p className="mt-2 text-3xl font-extrabold tabular-nums text-text">{count(t.key)}</p>
+          <p className="mt-2 text-3xl font-bold tabular-nums text-text">{count(t.key)}</p>
         </div>
       ))}
     </div>

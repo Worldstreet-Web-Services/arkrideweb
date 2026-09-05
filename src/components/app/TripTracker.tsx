@@ -86,7 +86,7 @@ export function TripTracker({ ride }: { ride: Ride }) {
         <p role="status" aria-live="polite" className="text-sm font-bold uppercase tracking-wide text-primary-ink">
           {STATUS_LABELS[ride.status] ?? ride.status}
         </p>
-        <p className="mt-1 text-2xl font-extrabold tracking-tight text-text">
+        <p className="mt-1 text-2xl font-bold tracking-tight text-text">
           {formatNaira(ride.fare ?? ride.estimatedFare)}
         </p>
         <p className="mt-0.5 text-sm text-text-muted">

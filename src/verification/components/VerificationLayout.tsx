@@ -50,7 +50,7 @@ function BrandBar() {
       <div className="flex items-center gap-2.5">
         <ArkLogo className="h-7 w-auto text-text" aria-hidden />
         <span className="flex items-baseline gap-1.5">
-          <span className="text-lg font-extrabold tracking-tight">Arkride</span>
+          <span className="text-lg font-bold tracking-tight">Arkride</span>
           <span className="text-xs font-semibold text-text-subtle">Driver Verification</span>
         </span>
       </div>

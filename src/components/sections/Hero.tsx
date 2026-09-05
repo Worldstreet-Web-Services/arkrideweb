@@ -46,12 +46,12 @@ export function Hero() {
           </p>
 
           <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link href="/#get-the-app" className="w-full sm:w-auto">
+            <Link href="/register" className="w-full sm:w-auto">
               <Button size="lg" fullWidth className="sm:w-56">
                 Get the app
               </Button>
             </Link>
-            <Link href="/#drive" className="w-full sm:w-auto">
+            <Link href="/driver-register" className="w-full sm:w-auto">
               <Button
                 size="lg"
                 variant="secondary"

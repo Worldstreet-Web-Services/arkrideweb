@@ -84,12 +84,12 @@ export default function AdminQueuePage() {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 text-[13px] font-semibold transition-colors",
                   active
-                    ? "border-neutral-900 bg-neutral-900 text-white"
-                    : "border-neutral-200 bg-white text-neutral-600 hover:border-neutral-300"
+                    ? "border-text bg-surface-inverse text-white"
+                    : "border-border-input bg-surface text-text-muted hover:border-border-strong"
                 )}
               >
                 {f.label}
-                <span className={cn("tabular-nums", active ? "text-white/70" : "text-neutral-400")}>{n}</span>
+                <span className={cn("tabular-nums", active ? "text-white/70" : "text-text-subtle")}>{n}</span>
               </button>
             );
           })}
@@ -100,7 +100,7 @@ export default function AdminQueuePage() {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="Search name, plate, or ID"
-          className="h-10 w-full rounded-xl border border-neutral-200 bg-white px-4 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none transition-colors focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10 sm:w-72"
+          className="h-10 w-full rounded-xl border border-border-input bg-surface px-4 text-sm text-text placeholder:text-text-subtle outline-none transition-colors focus:border-text focus:ring-2 focus:ring-text/10 sm:w-72"
         />
       </div>
 

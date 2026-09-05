@@ -25,7 +25,7 @@ export default async function RiderAccountPage() {
   return (
     <div className="grid gap-6">
       <section>
-        <h1 className="text-2xl font-extrabold tracking-tight text-text">Account</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-text">Account</h1>
         <div className="mt-4 rounded-3xl border border-border bg-surface p-5 shadow-sm">
           <dl className="grid gap-3.5">
             <div className="flex items-baseline justify-between gap-4">

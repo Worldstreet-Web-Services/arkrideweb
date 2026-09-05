@@ -73,7 +73,6 @@ export function Navbar() {
             className="flex items-center gap-2 text-text transition-opacity hover:opacity-70"
           >
             <ArkLogo width={92} title="ArkRide home" />
-            <span className="text-md font-semibold tracking-tight">RIDE</span>
           </Link>
 
           <ul className="hidden items-center gap-8 md:flex">

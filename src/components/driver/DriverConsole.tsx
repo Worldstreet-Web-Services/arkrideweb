@@ -84,7 +84,7 @@ export function DriverConsole({
   if (!approved) {
     return (
       <div className="grid gap-4">
-        <h1 className="text-2xl font-extrabold tracking-tight text-text">
+        <h1 className="text-2xl font-bold tracking-tight text-text">
           Hello, {driver.name?.split(" ")[0] ?? "there"}
         </h1>
 
@@ -143,7 +143,7 @@ export function DriverConsole({
     <div className="grid gap-5">
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold tracking-tight text-text">
+          <h1 className="text-2xl font-bold tracking-tight text-text">
             Hello, {driver.name?.split(" ")[0] ?? "there"}
           </h1>
           <p className="mt-1 text-[15px] text-text-muted">
@@ -186,7 +186,7 @@ export function DriverConsole({
           <p role="status" aria-live="polite" className="text-sm font-bold uppercase tracking-wide text-primary-ink">
             {STATUS_LABELS[current.status]}
           </p>
-          <p className="mt-1 text-2xl font-extrabold tracking-tight text-text">
+          <p className="mt-1 text-2xl font-bold tracking-tight text-text">
             {formatNaira(current.fare ?? current.estimatedFare)}
           </p>
 

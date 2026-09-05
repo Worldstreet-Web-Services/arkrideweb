@@ -5,7 +5,7 @@ export default function NotFound() {
     <main className="grid min-h-dvh place-items-center bg-bg px-5 py-16">
       <div className="w-full max-w-110 text-center">
         <p className="text-sm font-bold uppercase tracking-wide text-primary">404</p>
-        <h1 className="mt-2 text-2xl font-extrabold tracking-tight text-text">
+        <h1 className="mt-2 text-2xl font-bold tracking-tight text-text">
           We couldn&rsquo;t find that page
         </h1>
         <p className="mt-2 text-[15px] text-text-muted">

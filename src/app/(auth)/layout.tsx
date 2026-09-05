@@ -23,11 +23,17 @@ import { ArkLogo } from "@/components/brand/ArkLogo";
  *
  * Hidden below `lg`. On a phone the form should have the whole screen, and a
  * 719KB illustration is not worth a rider's mobile data to decorate it.
+ *
+ * The panel is STICKY and exactly one viewport tall. A grid item stretches to
+ * the row height by default, so on a long form — driver sign-up runs well past
+ * the fold — the artwork was being stretched to the full scroll height and
+ * dragged up the screen with the fields. Pinning it means the form scrolls
+ * against a fixed image, which is the behaviour the split layout implies.
  */
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="grid min-h-dvh lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
-      <div className="flex flex-col px-5 py-8 sm:px-10">
+      <div className="flex min-h-dvh flex-col px-5 py-8 sm:px-10">
         <Link
           href="/"
           className="inline-flex w-fit rounded-pill focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
@@ -40,7 +46,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         </div>
       </div>
 
-      <aside className="relative hidden overflow-hidden bg-[#F6F1E7] lg:block">
+      <aside className="relative hidden overflow-hidden bg-[#F6F1E7] lg:sticky lg:top-0 lg:block lg:h-dvh lg:self-start">
         {/*
           Bottom-anchored: the road runs off the lower edge, so the scene reads
           as continuing past the panel rather than floating inside it.

@@ -35,7 +35,7 @@
   --color-primary-tint:       rgb(243 186 63 / 0.14);
   --color-primary-tint-strong:rgb(243 186 63 / 0.18);
   --color-primary-border:     rgb(243 186 63 / 0.30);
-  --color-primary-ink:        #8a5c00; /* text on an amber tint */
+  --color-primary-ink:        #8a6a12; /* mobile L.amberDeep */
 
   --color-secondary:          #feee8f; /* butter — soft CTA */
   --color-secondary-hover:    #f7e370;
@@ -65,7 +65,7 @@
   --color-border:             rgb(0 0 0 / 0.08);
   --color-border-subtle:      rgb(0 0 0 / 0.06);
   --color-border-strong:      #e5e7eb;
-  --color-border-input:       #e4e4e4;
+  --color-border-input:       #e4e4e4; /* mobile's bordered field */
 
   /* ── Text ────────────────────────────────────────────────────────────────
      Primary text is #152531 — a deep navy-slate. Deliberately NOT #000: it is
@@ -81,13 +81,16 @@
      Darkened along the same hue until each clears 4.6:1 with headroom. The
      shift is imperceptible next to the phone; the compliance difference is not.
      Verified by `scripts/dev/check-contrast.mjs`. */
-  --color-text-muted:         #69707e; /* was #6b7280 — 4.63:1 on page */
-  --color-text-subtle:        #6a6f78; /* was #8a8f98 — 4.70:1 on page */
+  --color-text-muted:         #6b7280; /* mobile L.muted — 4.50:1 on page */
+  /* Was a fourth tier one shade off muted. Mobile has three text
+     colours and no more, so this now points at the same value it was
+     indistinguishable from anyway. */
+  --color-text-subtle:        #6b7280;
 
   /* Placeholder and disabled text is exempt: WCAG does not require contrast
      for disabled controls, and a placeholder that matches body text reads as a
      filled field. Kept at mobile's values. */
-  --color-text-placeholder:   #9ca3af;
+  --color-text-placeholder:   #b0b0b0; /* mobile's field placeholder */
   --color-text-disabled:      #9ca3af;
   --color-text-inverse:       #ffffff;
 

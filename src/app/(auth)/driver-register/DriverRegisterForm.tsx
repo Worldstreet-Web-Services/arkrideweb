@@ -30,7 +30,7 @@ export function DriverRegisterForm() {
 
   return (
     <div>
-      <h1 className="text-2xl font-extrabold tracking-tight text-text">
+      <h1 className="text-2xl font-bold tracking-tight text-text">
         Apply to drive
       </h1>
       <p className="mt-1.5 text-[15px] text-text-muted">

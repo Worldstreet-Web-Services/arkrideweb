@@ -42,7 +42,7 @@ export function EarningsPanel({
   return (
     <div className="grid gap-6">
       <section>
-        <h1 className="text-2xl font-extrabold tracking-tight text-text">
+        <h1 className="text-2xl font-bold tracking-tight text-text">
           Earnings
         </h1>
 
@@ -50,7 +50,7 @@ export function EarningsPanel({
           <p className="text-xs font-semibold uppercase tracking-wide text-on-inverse-muted">
             Available balance
           </p>
-          <p className="mt-1.5 text-4xl font-extrabold tracking-tight text-on-inverse">
+          <p className="mt-1.5 text-4xl font-bold tracking-tight text-on-inverse">
             {wallet ? formatNaira(wallet.walletBalance) : "—"}
           </p>
           {wallet && (

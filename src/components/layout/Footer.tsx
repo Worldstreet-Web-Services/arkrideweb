@@ -35,7 +35,6 @@ export function Footer() {
           <div>
             <div className="flex items-center gap-2 text-text">
               <ArkLogo width={92} title="ArkRide" />
-              <span className="text-md font-semibold tracking-tight">RIDE</span>
             </div>
             <p className="mt-4 max-w-xs text-base text-text-muted">
               Request a ride, hop in, and get where you&apos;re going.
