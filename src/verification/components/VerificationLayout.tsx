@@ -48,7 +48,7 @@ function BrandBar() {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between border-b border-border-input bg-surface/90 px-6 py-4 backdrop-blur">
       <div className="flex items-center gap-2.5">
-        <ArkLogo className="h-6 w-auto text-text" aria-hidden />
+        <ArkLogo className="h-7 w-auto text-text" aria-hidden />
         <span className="flex items-baseline gap-1.5">
           <span className="text-lg font-extrabold tracking-tight">Arkride</span>
           <span className="text-xs font-semibold text-text-subtle">Driver Verification</span>

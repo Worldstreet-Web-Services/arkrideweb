@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    Browser tab icon. The "A" from the ARK RIDE logo (Figma 153:6983) on the
+    brand amber, cropped square and optically centred.
+
+    Amber ground with the glyph knocked out in ink, rather than an amber glyph
+    on transparent: a tab favicon renders at 16px against whatever chrome the
+    browser paints, and a solid ground is the only way it stays legible in both
+    light and dark tab bars.
+
+    Ink, not black — #152531 is the brand ink. Black on this amber would be
+    harsher than the product is anywhere else.
+  -->
+  <rect width="64" height="64" rx="14" fill="#f3ba3f"/>
+  <g transform="translate(12 18.485) scale(1.67312)" fill="#152531">
+    <path d="M0 14.216L9.69231 1.93906H14L23.9077 14.216H18.9538L17.8769 12.4929L9.04615 10.3391H16.1538L11.8462 5.16983L4.52308 14.216H0Z"/>
+  </g>
+</svg>
