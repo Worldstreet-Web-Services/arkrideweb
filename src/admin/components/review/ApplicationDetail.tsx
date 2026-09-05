@@ -36,7 +36,13 @@ const PHOTO_LABEL: Record<string, string> = {
 
 type FlagMap = Record<string, { label: string; note: string }>;
 
-export function ApplicationDetail({ application: a }: { application: Application }) {
+export function ApplicationDetail({
+  application: a,
+  reviewerName,
+}: {
+  application: Application;
+  reviewerName: string;
+}) {
   const router = useRouter();
   const d = a.data;
   const decided = a.status !== "submitted";
@@ -69,17 +75,17 @@ export function ApplicationDetail({ application: a }: { application: Application
   );
 
   const doApprove = () => {
-    applicationsStore.approve(a.id);
+    applicationsStore.approve(a.id, reviewerName);
     setDialog(null);
   };
   const doReject = () => {
     if (!reason.trim()) return;
-    applicationsStore.reject(a.id, reason.trim());
+    applicationsStore.reject(a.id, reason.trim(), reviewerName);
     setDialog(null);
   };
   const doRequestChanges = () => {
     if (flagList.length === 0) return;
-    applicationsStore.requestChanges(a.id, flagList);
+    applicationsStore.requestChanges(a.id, flagList, reviewerName);
     setDialog(null);
   };
 
