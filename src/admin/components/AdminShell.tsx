@@ -16,7 +16,7 @@ export async function AdminShell({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text">
       <AdminHeader reviewerName={reviewer?.name ?? ""} />
-      <main className="mx-auto w-full max-w-320 flex-1 px-6 py-8">{children}</main>
+      <main id="main" tabIndex={-1} className="mx-auto w-full max-w-320 flex-1 px-6 py-8 outline-none">{children}</main>
     </div>
   );
 }

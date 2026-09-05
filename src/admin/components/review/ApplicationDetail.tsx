@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState, type ReactNode } from "react";
+import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import {
   ArrowRightIcon,
@@ -15,6 +15,7 @@ import { applicationsStore } from "@/admin/store/applicationsStore";
 import { formatDateTime } from "@/admin/format";
 import { applicantName, type Application, type SectionFlag } from "@/admin/types";
 import { StatusBadge } from "../StatusBadge";
+import { Modal } from "./Modal";
 import { SectionCard, type Row } from "./SectionCard";
 
 const ID_LABEL: Record<IdType | "", string> = {
@@ -125,7 +126,7 @@ export function ApplicationDetail({
       {/* Back */}
       <Link
         href="/admin"
-        className="inline-flex items-center gap-1.5 text-sm font-semibold text-neutral-500 transition-colors hover:text-neutral-900"
+        className="inline-flex items-center gap-1.5 text-sm font-semibold text-text-muted transition-colors hover:text-text"
       >
         <ArrowRightIcon size={16} className="rotate-180" /> Applications
       </Link>
@@ -133,7 +134,7 @@ export function ApplicationDetail({
       {/* Header */}
       <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-4">
-          <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-neutral-100 text-neutral-300">
+          <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-2xl bg-surface-sunken text-text-placeholder">
             {d.personal.profilePhoto?.dataUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={d.personal.profilePhoto.dataUrl} alt="" className="size-full object-cover" />
@@ -142,8 +143,8 @@ export function ApplicationDetail({
             )}
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-neutral-900">{applicantName(a)}</h1>
-            <p className="mt-0.5 text-sm text-neutral-500">
+            <h1 className="text-2xl font-bold tracking-tight text-text">{applicantName(a)}</h1>
+            <p className="mt-0.5 text-sm text-text-muted">
               {a.id} · Submitted {formatDateTime(a.submittedAt)}
             </p>
           </div>
@@ -157,10 +158,10 @@ export function ApplicationDetail({
           className={cn(
             "mt-5 rounded-xl border px-4 py-3 text-sm",
             a.status === "approved"
-              ? "border-emerald-200 bg-emerald-50 text-emerald-800"
+              ? "border-success-border bg-success-tint text-success-strong"
               : a.status === "rejected"
-                ? "border-red-200 bg-red-50 text-red-800"
-                : "border-blue-200 bg-blue-50 text-blue-800"
+                ? "border-danger-border bg-danger-tint text-danger"
+                : "border-info-border bg-info-tint text-info-strong"
           )}
         >
           <p className="font-semibold">
@@ -326,12 +327,12 @@ export function ApplicationDetail({
       {/* Dialogs */}
       {dialog === "approve" && (
         <Modal title="Approve this application?" onClose={() => setDialog(null)}>
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-text-muted">
             {applicantName(a)} will be cleared to start accepting rides.
           </p>
           <DialogActions
             confirmLabel="Approve"
-            confirmClass="bg-emerald-600 hover:bg-emerald-700"
+            confirmClass="bg-primary text-on-primary hover:bg-primary-hover"
             onCancel={() => setDialog(null)}
             onConfirm={doApprove}
           />
@@ -340,17 +341,17 @@ export function ApplicationDetail({
 
       {dialog === "reject" && (
         <Modal title="Reject application" onClose={() => setDialog(null)}>
-          <p className="text-sm text-neutral-600">Tell the driver why this was rejected.</p>
+          <p className="text-sm text-text-muted">Tell the driver why this was rejected.</p>
           <textarea
             value={reason}
             onChange={(e) => setReason(e.target.value)}
             placeholder="e.g. The identity document didn't match the applicant's details."
-            className="mt-3 min-h-24 w-full resize-y rounded-xl border border-neutral-200 bg-white px-3.5 py-2.5 text-sm text-neutral-900 placeholder:text-neutral-400 outline-none focus:border-neutral-900 focus:ring-2 focus:ring-neutral-900/10"
+            className="mt-3 min-h-24 w-full resize-y rounded-2xl border border-border-input bg-surface px-3.5 py-2.5 text-sm text-text placeholder:text-text-placeholder outline-none focus-visible:border-primary focus-visible:ring-4 focus-visible:ring-primary/25"
             autoFocus
           />
           <DialogActions
             confirmLabel="Reject application"
-            confirmClass="bg-red-600 hover:bg-red-700 disabled:opacity-40"
+            confirmClass="bg-danger text-white hover:bg-danger-soft disabled:opacity-40"
             confirmDisabled={!reason.trim()}
             onCancel={() => setDialog(null)}
             onConfirm={doReject}
@@ -360,20 +361,20 @@ export function ApplicationDetail({
 
       {dialog === "changes" && (
         <Modal title="Request changes" onClose={() => setDialog(null)}>
-          <p className="text-sm text-neutral-600">
+          <p className="text-sm text-text-muted">
             The driver will be asked to fix these items and resubmit:
           </p>
           <ul className="mt-3 space-y-2">
             {flagList.map((f) => (
-              <li key={f.section} className="rounded-lg bg-neutral-50 px-3 py-2 text-sm">
-                <span className="font-semibold text-neutral-900">{f.label}</span>
-                <span className="text-neutral-600"> — {f.note}</span>
+              <li key={f.section} className="rounded-xl bg-surface-sunken px-3 py-2 text-sm">
+                <span className="font-semibold text-text">{f.label}</span>
+                <span className="text-text-muted"> — {f.note}</span>
               </li>
             ))}
           </ul>
           <DialogActions
             confirmLabel="Send request"
-            confirmClass="bg-blue-600 hover:bg-blue-700"
+            confirmClass="bg-surface-inverse text-on-inverse hover:opacity-90"
             onCancel={() => setDialog(null)}
             onConfirm={doRequestChanges}
           />
@@ -383,17 +384,6 @@ export function ApplicationDetail({
   );
 }
 
-function Modal({ title, children, onClose }: { title: string; children: ReactNode; onClose: () => void }) {
-  return (
-    <div className="fixed inset-0 z-50 grid place-items-center p-4">
-      <div className="absolute inset-0 bg-neutral-900/40" onClick={onClose} aria-hidden />
-      <div className="pop-in relative w-full max-w-md rounded-2xl border border-neutral-200 bg-white p-5 shadow-xl">
-        <h3 className="text-lg font-bold text-neutral-900">{title}</h3>
-        <div className="mt-3">{children}</div>
-      </div>
-    </div>
-  );
-}
 
 function DialogActions({
   confirmLabel,
@@ -413,7 +403,7 @@ function DialogActions({
       <button
         type="button"
         onClick={onCancel}
-        className="rounded-full px-4 py-2.5 text-sm font-semibold text-neutral-600 transition-colors hover:text-neutral-900"
+        className="rounded-full px-4 py-2.5 text-sm font-semibold text-text-muted transition-colors hover:text-text"
       >
         Cancel
       </button>

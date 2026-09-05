@@ -4,6 +4,7 @@ import {
   email,
   fileRequired,
   phoneNG,
+  notExpired,
   required,
 } from "./validation";
 
@@ -54,6 +55,9 @@ export const STEPS: StepDef[] = [
         idType: required(i.idType, "Identification type"),
         idNumber: required(i.idNumber, "Identification number"),
         document: fileRequired(i.document, "identification document"),
+        // `expiryDate` is optional — a NIN has none — so an empty value is
+        // fine and only a supplied, past date is rejected.
+        expiryDate: i.expiryDate ? notExpired(i.expiryDate, "Expiry date") : null,
       }),
   },
   {
@@ -100,7 +104,7 @@ export const STEPS: StepDef[] = [
       collect({
         number: required(l.number, "License number"),
         issueDate: dateRequired(l.issueDate, "Issue date"),
-        expiryDate: dateRequired(l.expiryDate, "Expiry date"),
+        expiryDate: notExpired(l.expiryDate, "Expiry date"),
         category: required(l.category, "License category"),
         front: fileRequired(l.front, "front of your driver's license"),
       }),

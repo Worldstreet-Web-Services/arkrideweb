@@ -277,15 +277,12 @@ function decide(
   }
 ): void {
   const reviewedAt = new Date().toISOString();
-  // VerificationData.status has no "changes_requested" — record it as "rejected"
-  // on the snapshot so the driver's portal reads it as "action required".
-  const dataStatus = partial.outcome === "changes_requested" ? "rejected" : partial.outcome;
   const next: Application[] = ensure().map((a) =>
     a.id === id
       ? {
           ...a,
           status: partial.outcome,
-          data: { ...a.data, status: dataStatus },
+          data: { ...a.data, status: partial.outcome },
           decision: {
             outcome: partial.outcome,
             reason: partial.reason,

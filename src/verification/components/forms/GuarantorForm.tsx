@@ -23,10 +23,10 @@ export function GuarantorForm({ errors }: { errors: FieldErrors }) {
         return (
           <div
             key={idx}
-            className="flex flex-col gap-4.5 rounded-2xl border border-neutral-200 bg-white p-5"
+            className="flex flex-col gap-4.5 rounded-2xl border border-border-input bg-surface p-5"
           >
             {data.guarantors.length > 1 && (
-              <p className="text-base font-bold text-neutral-900">Guarantor {idx + 1}</p>
+              <p className="text-base font-bold text-text">Guarantor {idx + 1}</p>
             )}
 
             <FormField label="Full name" error={e("fullName")} required>

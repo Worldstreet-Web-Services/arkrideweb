@@ -6,7 +6,7 @@ export function DocumentPreview({ label, file }: { label: string; file: Uploaded
   const isImage = file?.type.startsWith("image/");
   return (
     <div>
-      <div className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-neutral-200 bg-neutral-50">
+      <div className="group relative aspect-[4/3] overflow-hidden rounded-xl border border-border-input bg-surface-hover">
         {file ? (
           isImage ? (
             <>
@@ -16,7 +16,7 @@ export function DocumentPreview({ label, file }: { label: string; file: Uploaded
                 href={file.dataUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="absolute inset-0 grid place-items-center bg-neutral-900/0 text-white opacity-0 transition-all hover:bg-neutral-900/40 hover:opacity-100"
+                className="absolute inset-0 grid place-items-center bg-surface-inverse/0 text-white opacity-0 transition-all hover:bg-surface-inverse/40 hover:opacity-100"
                 aria-label={`Open ${label}`}
               >
                 <EyeIcon size={22} />
@@ -27,19 +27,19 @@ export function DocumentPreview({ label, file }: { label: string; file: Uploaded
               href={file.dataUrl}
               target="_blank"
               rel="noreferrer"
-              className="flex size-full flex-col items-center justify-center gap-1.5 text-neutral-500 hover:text-neutral-900"
+              className="flex size-full flex-col items-center justify-center gap-1.5 text-text-muted hover:text-text"
             >
               <FileIcon size={26} />
               <span className="text-xs font-semibold">Open PDF</span>
             </a>
           )
         ) : (
-          <div className="grid size-full place-items-center text-xs font-medium text-neutral-400">
+          <div className="grid size-full place-items-center text-xs font-medium text-text-subtle">
             Not provided
           </div>
         )}
       </div>
-      <p className="mt-1.5 text-xs font-medium text-neutral-600">{label}</p>
+      <p className="mt-1.5 text-xs font-medium text-text-muted">{label}</p>
     </div>
   );
 }

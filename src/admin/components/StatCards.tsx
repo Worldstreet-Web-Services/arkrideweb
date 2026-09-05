@@ -3,10 +3,10 @@ import { cn } from "@/lib/utils";
 import type { Application, ApplicationStatus } from "../types";
 
 const TILES: { key: ApplicationStatus; label: string; dot: string }[] = [
-  { key: "submitted", label: "Under review", dot: "bg-amber-500" },
-  { key: "changes_requested", label: "Changes requested", dot: "bg-blue-500" },
-  { key: "approved", label: "Approved", dot: "bg-emerald-500" },
-  { key: "rejected", label: "Rejected", dot: "bg-red-500" },
+  { key: "submitted", label: "Under review", dot: "bg-warning" },
+  { key: "changes_requested", label: "Changes requested", dot: "bg-info" },
+  { key: "approved", label: "Approved", dot: "bg-success" },
+  { key: "rejected", label: "Rejected", dot: "bg-danger" },
 ];
 
 export function StatCards({ applications }: { applications: Application[] }) {
@@ -17,9 +17,9 @@ export function StatCards({ applications }: { applications: Application[] }) {
         <div key={t.key} className={cn(cardCls, "p-4")}>
           <div className="flex items-center gap-2">
             <span className={cn("size-2 rounded-full", t.dot)} aria-hidden />
-            <span className="text-xs font-semibold text-neutral-500">{t.label}</span>
+            <span className="text-xs font-semibold text-text-muted">{t.label}</span>
           </div>
-          <p className="mt-2 text-3xl font-extrabold tabular-nums text-neutral-900">{count(t.key)}</p>
+          <p className="mt-2 text-3xl font-extrabold tabular-nums text-text">{count(t.key)}</p>
         </div>
       ))}
     </div>

@@ -29,6 +29,24 @@ export function dateRequired(value: string, label = "Date"): string | null {
   return Number.isNaN(Date.parse(value)) ? `Please enter a valid ${label.toLowerCase()}.` : null;
 }
 
+/**
+ * A date that must still be in the future.
+ *
+ * `isExpired` existed and was used only to draw a red "expired" chip under the
+ * field — nothing called it during validation, so a driver could upload an
+ * expired licence, see the warning, press Continue, and submit. On a document
+ * verification form, an expiry date that is displayed but not enforced is
+ * worse than not collecting it: it looks like a check that is not happening.
+ */
+export function notExpired(value: string, label = "Document"): string | null {
+  const missing = dateRequired(value, label);
+  if (missing) return missing;
+  if (isExpired(value)) {
+    return `This ${label.toLowerCase().replace(/ date$/, "")} has expired. Please renew it before applying.`;
+  }
+  return null;
+}
+
 /** True when an ISO date is in the past (used to flag expired documents). */
 export function isExpired(value: string): boolean {
   if (!value) return false;

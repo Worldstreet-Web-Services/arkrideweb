@@ -17,8 +17,8 @@ function mask(value: string): string {
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4 text-sm">
-      <span className="text-neutral-500">{label}</span>
-      <span className="text-right font-medium text-neutral-900">{value || "—"}</span>
+      <span className="text-text-muted">{label}</span>
+      <span className="text-right font-medium text-text">{value || "—"}</span>
     </div>
   );
 }
@@ -34,13 +34,13 @@ function SummaryCard({
 }) {
   const router = useRouter();
   return (
-    <div className="rounded-2xl border border-neutral-200 bg-white px-4.5 py-4">
+    <div className="rounded-2xl border border-border-input bg-surface px-4.5 py-4">
       <div className="mb-3 flex justify-between">
-        <p className="font-bold text-neutral-900">{title}</p>
+        <p className="font-bold text-text">{title}</p>
         <button
           type="button"
           onClick={() => router.push(editPath)}
-          className="text-[13px] font-semibold text-neutral-900 underline underline-offset-4 hover:opacity-70"
+          className="text-[13px] font-semibold text-text underline underline-offset-4 hover:opacity-70"
         >
           Edit
         </button>
@@ -68,13 +68,13 @@ export function ReviewDetails() {
   }[data.identity.idType];
   const docCheck = (ok: boolean, label: string) => (
     <div className="flex items-center justify-between gap-4 text-sm">
-      <span className="text-neutral-500">{label}</span>
+      <span className="text-text-muted">{label}</span>
       {ok ? (
-        <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600">
+        <span className="inline-flex items-center gap-1.5 font-medium text-success-strong">
           <CheckIcon size={15} /> Uploaded
         </span>
       ) : (
-        <span className="inline-flex items-center gap-1.5 font-medium text-red-600">
+        <span className="inline-flex items-center gap-1.5 font-medium text-danger">
           <WarningIcon size={15} /> Missing
         </span>
       )}
@@ -113,8 +113,8 @@ export function ReviewDetails() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Review your details</h1>
-      <p className="mt-1.5 text-[15px] text-neutral-500">Check everything is correct before you submit.</p>
+      <h1 className="text-2xl font-bold tracking-tight text-text">Review your details</h1>
+      <p className="mt-1.5 text-[15px] text-text-muted">Check everything is correct before you submit.</p>
 
       <div className="mt-6 flex flex-col gap-3.5">
         <SummaryCard title="Personal Information" editPath="/verify/personal">
@@ -160,7 +160,7 @@ export function ReviewDetails() {
         </SummaryCard>
       </div>
 
-      <div className="mt-5 rounded-2xl border border-neutral-200 bg-white px-4.5 py-4">
+      <div className="mt-5 rounded-2xl border border-border-input bg-surface px-4.5 py-4">
         <Checkbox
           checked={agreed}
           onChange={(v) => {
@@ -172,7 +172,7 @@ export function ReviewDetails() {
         </Checkbox>
       </div>
 
-      {error && <p className="mt-3.5 text-sm text-red-600">{error}</p>}
+      {error && <p className="mt-3.5 text-sm text-danger">{error}</p>}
 
       <div className="mt-6 flex items-center gap-2">
         <button

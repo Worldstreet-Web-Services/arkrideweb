@@ -21,7 +21,7 @@ export function VerificationSummaryCard() {
   return (
     <div>
       <div className={`overflow-hidden ${cardCls} p-4`}>
-        <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl bg-neutral-100 text-neutral-300">
+        <div className="grid aspect-square w-full place-items-center overflow-hidden rounded-xl bg-surface-sunken text-text-placeholder">
           {photo ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={photo} alt={name} className="size-full object-cover" />
@@ -30,32 +30,32 @@ export function VerificationSummaryCard() {
           )}
         </div>
 
-        <p className="mt-3.5 text-lg font-bold text-neutral-900">{name}</p>
-        <p className="mt-0.5 text-sm text-neutral-500">Driver applicant</p>
+        <p className="mt-3.5 text-lg font-bold text-text">{name}</p>
+        <p className="mt-0.5 text-sm text-text-muted">Driver applicant</p>
 
         {/* Completion */}
         <div className="mt-3">
           <div className="mb-1.5 flex items-center justify-between">
-            <span className="text-xs font-semibold text-neutral-500">Application progress</span>
-            <span className="text-xs font-bold text-neutral-900">{pct}%</span>
+            <span className="text-xs font-semibold text-text-muted">Application progress</span>
+            <span className="text-xs font-bold text-text">{pct}%</span>
           </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
+          <div className="h-1.5 overflow-hidden rounded-full bg-surface-sunken">
             <div
-              className="h-full rounded-full bg-neutral-900 transition-[width] duration-500 ease-out"
+              className="h-full rounded-full bg-surface-inverse transition-[width] duration-500 ease-out"
               style={{ width: `${pct}%` }}
             />
           </div>
         </div>
 
         {p.residentialAddress && (
-          <p className="mt-3.5 border-t border-neutral-100 pt-3.5 text-sm leading-normal text-neutral-500">
+          <p className="mt-3.5 border-t border-border-subtle pt-3.5 text-sm leading-normal text-text-muted">
             {p.residentialAddress}
           </p>
         )}
       </div>
 
       {/* Trust row */}
-      <div className="mt-3.5 flex items-center gap-2 px-1 text-xs text-neutral-500">
+      <div className="mt-3.5 flex items-center gap-2 px-1 text-xs text-text-muted">
         <LockIcon size={14} />
         <span>Your information is encrypted and kept private.</span>
       </div>
@@ -63,7 +63,7 @@ export function VerificationSummaryCard() {
       <button
         type="button"
         onClick={() => router.push(config.dashboardUrl)}
-        className="mt-3 text-sm font-medium text-neutral-900 underline underline-offset-4 transition-opacity hover:opacity-70"
+        className="mt-3 text-sm font-medium text-text underline underline-offset-4 transition-opacity hover:opacity-70"
       >
         Save &amp; exit
       </button>

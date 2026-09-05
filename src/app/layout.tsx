@@ -78,6 +78,18 @@ export default function RootLayout({
   return (
     <html lang="en" className={brandSans.variable}>
       <body className="min-h-screen flex flex-col antialiased bg-bg text-text">
+        {/*
+          Skip link. There was none anywhere, so a keyboard user re-tabbed the
+          whole header on every one of the nine verification steps. Visually
+          hidden until focused, which is the point — it should appear only for
+          the people who need it.
+        */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-100 focus:rounded-pill focus:bg-surface-inverse focus:px-5 focus:py-3 focus:text-sm focus:font-semibold focus:text-on-inverse focus:outline-2 focus:outline-offset-2 focus:outline-primary"
+        >
+          Skip to main content
+        </a>
         {children}
       </body>
     </html>

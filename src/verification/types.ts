@@ -107,6 +107,7 @@ export type VerificationStatus =
   | "in_progress"
   | "submitted" // under review
   | "approved"
+  | "changes_requested" // reviewer asked for fixes; the driver can resubmit
   | "rejected";
 
 export interface VerificationData {

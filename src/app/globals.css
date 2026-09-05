@@ -108,6 +108,9 @@
   --color-danger-border:      #f3b0b0;
 
   --color-info:               #1890ff;
+  --color-info-strong:        #0b6bcb;
+  --color-info-tint:          rgb(24 144 255 / 0.10);
+  --color-info-border:        rgb(24 144 255 / 0.28);
 
   /* ── Typography ──────────────────────────────────────────────────────────
      Mobile uses Euclid Circular A (commercial, Swiss Typefaces) in 4 weights.
@@ -285,6 +288,9 @@
   --color-success-strong:     #30d158;
   --color-success-tint:       rgb(80 200 120 / 0.11);
   --color-success-border:     rgb(80 200 120 / 0.30);
+  --color-info-strong:        #6cb6ff;
+  --color-info-tint:          rgb(24 144 255 / 0.16);
+  --color-info-border:        rgb(24 144 255 / 0.35);
   --color-danger:             #ff6b6b;
   --color-danger-soft:        #ff9292;
   --color-danger-tint:        rgb(223 0 0 / 0.10);
@@ -348,6 +354,9 @@
   --color-danger-tint:        var(--color-danger-tint);
   --color-danger-border:      var(--color-danger-border);
   --color-info:               var(--color-info);
+  --color-info-strong:        var(--color-info-strong);
+  --color-info-tint:          var(--color-info-tint);
+  --color-info-border:        var(--color-info-border);
 
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);

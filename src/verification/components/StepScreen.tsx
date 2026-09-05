@@ -76,17 +76,17 @@ export function StepScreen({
 
   return (
     <div key={stepId} className="step-in">
-      <p className="text-[13px] font-semibold uppercase tracking-wide text-neutral-400">
+      <p className="text-[13px] font-semibold uppercase tracking-wide text-text-subtle">
         Step {idx + 1} of {STEPS.length}
       </p>
       <h1
         ref={headingRef}
         tabIndex={-1}
-        className="mt-1 text-2xl font-bold tracking-tight text-neutral-900 outline-none"
+        className="mt-1 text-2xl font-bold tracking-tight text-text outline-none"
       >
         {step.title}
       </h1>
-      {subtitle && <p className="mt-1.5 text-[15px] text-neutral-500">{subtitle}</p>}
+      {subtitle && <p className="mt-1.5 text-[15px] text-text-muted">{subtitle}</p>}
 
       <div
         ref={errorRef}
@@ -129,7 +129,7 @@ export function StepScreen({
         </button>
       </div>
 
-      <p className="mt-6 flex items-center gap-2 text-xs text-neutral-400">
+      <p className="mt-6 flex items-center gap-2 text-xs text-text-subtle">
         <LockIcon size={14} /> Saved on this device as you go.
       </p>
     </div>

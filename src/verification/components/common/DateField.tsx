@@ -31,10 +31,10 @@ export function DateField({
         invalid={invalid || expired}
         max={max}
         min={min}
-        className={value ? "" : "text-neutral-400"}
+        className={value ? "" : "text-text-subtle"}
       />
       {expired && (
-        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-600">
+        <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-danger-tint px-2.5 py-1 text-xs font-semibold text-danger">
           <WarningIcon size={13} /> This document has expired
         </span>
       )}

@@ -19,18 +19,31 @@ export function VerificationProgress({ activeIndex }: { activeIndex: number }) {
   const pct = Math.round(((activeIndex + 1) / total) * 100);
 
   return (
-    <div aria-label={`Step ${activeIndex + 1} of ${total}`}>
+    /*
+      `aria-label` alone on a bare <div> is ignored — an accessible name needs
+      a role to attach to, and this had none. The mobile bar is now a real
+      progressbar and the desktop list marks its current step, so "where am I
+      in this nine-step form" is answerable without sight.
+    */
+    <div role="group" aria-label="Verification progress">
       {/* Mobile */}
       <div className="lg:hidden">
         <div className="mb-2 flex items-baseline justify-between">
-          <span className="text-[13px] font-semibold text-neutral-900">
+          <span className="text-[13px] font-semibold text-text">
             Step {activeIndex + 1} of {total}
           </span>
-          <span className="text-[13px] font-medium text-neutral-500">{STEPS[activeIndex]?.title}</span>
+          <span className="text-[13px] font-medium text-text-muted">{STEPS[activeIndex]?.title}</span>
         </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-neutral-100">
+        <div
+          role="progressbar"
+          aria-valuemin={1}
+          aria-valuemax={total}
+          aria-valuenow={activeIndex + 1}
+          aria-valuetext={`Step ${activeIndex + 1} of ${total}: ${STEPS[activeIndex]?.title ?? ""}`}
+          className="h-1.5 overflow-hidden rounded-full bg-surface-sunken"
+        >
           <div
-            className="h-full rounded-full bg-neutral-900 transition-[width] duration-500 ease-out"
+            className="h-full rounded-full bg-primary transition-[width] duration-500 ease-out"
             style={{ width: `${pct}%` }}
           />
         </div>
@@ -43,28 +56,32 @@ export function VerificationProgress({ activeIndex }: { activeIndex: number }) {
           const active = i === activeIndex;
           const isLast = i === total - 1;
           return (
-            <li key={s.id} className={cn("flex items-center", !isLast && "flex-1")}>
+            <li
+              key={s.id}
+              aria-current={active ? "step" : undefined}
+              className={cn("flex items-center", !isLast && "flex-1")}
+            >
               <div className="flex shrink-0 items-center gap-2">
                 <span
                   className={cn(
                     "grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] text-[13px] font-bold transition-colors",
                     active
-                      ? "border-neutral-900 bg-neutral-900 text-white ring-4 ring-neutral-900/10"
+                      ? "border-primary bg-primary text-on-primary ring-4 ring-primary/25"
                       : complete
-                        ? "border-neutral-900 bg-neutral-900 text-white"
-                        : "border-neutral-200 bg-white text-neutral-400"
+                        ? "border-primary bg-primary text-on-primary"
+                        : "border-border-input bg-surface text-text-subtle"
                   )}
                 >
-                  {complete && !active ? <CheckIcon size={14} /> : i + 1}
+                  {complete && !active ? <CheckIcon size={14} aria-hidden /> : i + 1}
                 </span>
                 <span
                   className={cn(
                     "whitespace-nowrap text-[13px] transition-colors",
                     active
-                      ? "font-semibold text-neutral-900"
+                      ? "font-semibold text-text"
                       : complete
-                        ? "font-medium text-neutral-700"
-                        : "font-medium text-neutral-400"
+                        ? "font-medium text-text-soft"
+                        : "font-medium text-text-subtle"
                   )}
                 >
                   {s.title}
@@ -74,7 +91,7 @@ export function VerificationProgress({ activeIndex }: { activeIndex: number }) {
                 <span
                   className={cn(
                     "mx-3 h-px flex-1 transition-colors",
-                    complete ? "bg-neutral-900" : "bg-neutral-200"
+                    complete ? "bg-primary" : "bg-border-input"
                   )}
                 />
               )}

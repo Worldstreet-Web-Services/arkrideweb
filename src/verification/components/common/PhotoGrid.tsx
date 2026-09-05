@@ -33,7 +33,7 @@ export function PhotoGrid({
     <div>
       <div className="mb-3 flex items-center justify-between">
         <span className={cn(labelCls, "mb-0")}>Vehicle Photos</span>
-        <span className="text-xs text-neutral-400">
+        <span className="text-xs text-text-subtle">
           {filled} of {VEHICLE_PHOTO_KEYS.length}
         </span>
       </div>
@@ -42,13 +42,13 @@ export function PhotoGrid({
           <div key={key}>
             <div className="mb-1.5 flex items-center gap-1.5 text-[13px]">
               {photos[key] ? (
-                <span className="grid size-4 place-items-center rounded-full bg-neutral-900 text-white">
+                <span className="grid size-4 place-items-center rounded-full bg-surface-inverse text-white">
                   <CheckIcon size={11} />
                 </span>
               ) : (
-                <span className="size-4 rounded-full border-[1.5px] border-neutral-300" aria-hidden />
+                <span className="size-4 rounded-full border-[1.5px] border-border-strong" aria-hidden />
               )}
-              <span className={photos[key] ? "font-medium text-neutral-900" : "text-neutral-500"}>
+              <span className={photos[key] ? "font-medium text-text" : "text-text-muted"}>
                 {LABELS[key]}
               </span>
             </div>

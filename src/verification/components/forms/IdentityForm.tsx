@@ -63,9 +63,9 @@ export function IdentityForm({ errors }: { errors: FieldErrors }) {
         />
       </FormField>
 
-      <div className="flex items-start gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-        <ShieldCheckIcon size={18} className="mt-0.5 shrink-0 text-neutral-500" />
-        <p className="text-xs leading-relaxed text-neutral-500">
+      <div className="flex items-start gap-3 rounded-xl border border-border-input bg-surface-hover px-4 py-3">
+        <ShieldCheckIcon size={18} className="mt-0.5 shrink-0 text-text-muted" />
+        <p className="text-xs leading-relaxed text-text-muted">
           Identity checks are handled by a trusted verification partner. Your documents are encrypted
           and used only to confirm your identity.
         </p>

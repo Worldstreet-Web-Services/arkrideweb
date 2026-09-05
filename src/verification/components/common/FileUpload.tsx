@@ -58,7 +58,7 @@ export function FileUpload({
 
   const isImage = value?.type.startsWith("image/");
   const miniBtn =
-    "inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3.5 py-2 text-[13px] font-semibold text-neutral-900 transition-colors hover:border-neutral-900 hover:bg-neutral-50 disabled:opacity-50";
+    "inline-flex items-center gap-1.5 rounded-full border border-border-strong px-3.5 py-2 text-[13px] font-semibold text-text transition-colors hover:border-text hover:bg-surface-hover disabled:opacity-50";
   const actionBtn = "inline-flex items-center gap-1 transition-colors";
 
   return (
@@ -109,7 +109,7 @@ export function FileUpload({
           <span
             className={cn(
               "grid place-items-center rounded-full transition-colors",
-              dragOver ? "bg-neutral-900 text-white" : "bg-neutral-100 text-neutral-500",
+              dragOver ? "bg-surface-inverse text-white" : "bg-surface-sunken text-text-muted",
               compact ? "size-9" : "size-12"
             )}
             aria-hidden
@@ -118,8 +118,8 @@ export function FileUpload({
           </span>
           {!compact && (
             <div>
-              <p className="text-[15px] font-semibold text-neutral-900">{label}</p>
-              <p className="text-xs text-neutral-400">Drag &amp; drop, or choose · JPG, PNG or PDF · up to 10MB</p>
+              <p className="text-[15px] font-semibold text-text">{label}</p>
+              <p className="text-xs text-text-subtle">Drag &amp; drop, or choose · JPG, PNG or PDF · up to 10MB</p>
             </div>
           )}
           <div className="flex flex-wrap justify-center gap-2">
@@ -132,28 +132,28 @@ export function FileUpload({
           </div>
         </div>
       ) : (
-        <div className="flex items-center gap-3 rounded-2xl border border-neutral-200 bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.04)]">
+        <div className="flex items-center gap-3 rounded-2xl border border-border-input bg-surface p-3 shadow-sm">
           {isImage ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={value.dataUrl} alt={value.name} className="size-12 shrink-0 rounded-lg object-cover" />
           ) : (
-            <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-neutral-100 text-neutral-500">
+            <span className="grid size-12 shrink-0 place-items-center rounded-lg bg-surface-sunken text-text-muted">
               <FileIcon size={22} />
             </span>
           )}
           <div className="min-w-0 flex-1">
-            <p className="flex items-center gap-1.5 truncate text-[13px] font-semibold text-neutral-900">
-              <CheckIcon size={15} className="shrink-0 text-emerald-600" />
+            <p className="flex items-center gap-1.5 truncate text-[13px] font-semibold text-text">
+              <CheckIcon size={15} className="shrink-0 text-success-strong" />
               <span className="truncate">{value.name}</span>
             </p>
-            <div className="mt-1.5 flex gap-3.5 text-xs font-medium text-neutral-500">
-              <a href={value.dataUrl} target="_blank" rel="noreferrer" className={`${actionBtn} hover:text-neutral-900`}>
+            <div className="mt-1.5 flex gap-3.5 text-xs font-medium text-text-muted">
+              <a href={value.dataUrl} target="_blank" rel="noreferrer" className={`${actionBtn} hover:text-text`}>
                 <EyeIcon size={14} /> Preview
               </a>
-              <button type="button" onClick={() => fileRef.current?.click()} className={`${actionBtn} hover:text-neutral-900`}>
+              <button type="button" onClick={() => fileRef.current?.click()} className={`${actionBtn} hover:text-text`}>
                 <ReplaceIcon size={14} /> Replace
               </button>
-              <button type="button" onClick={() => onChange(null)} className={`${actionBtn} text-red-600 hover:text-red-700`}>
+              <button type="button" onClick={() => onChange(null)} className={`${actionBtn} text-danger hover:text-danger`}>
                 <TrashIcon size={14} /> Remove
               </button>
             </div>
@@ -161,7 +161,7 @@ export function FileUpload({
         </div>
       )}
 
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs text-danger">{error}</p>}
     </div>
   );
 }
