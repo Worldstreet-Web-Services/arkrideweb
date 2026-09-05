@@ -1,200 +1,509 @@
 @import "tailwindcss";
 
-/* ============================================================
-   DESIGN TOKENS — edit here, changes apply everywhere
-   ============================================================ */
+/* ============================================================================
+   ARKRIDE DESIGN TOKENS
+   ============================================================================
+   Ported from the mobile app — `arkride-mobile/src/constants/colors.ts`,
+   `fonts.ts`, and the measured values across its 40 screens. Mobile is the
+   source of truth for the brand; this file is the web translation of it.
+
+   TWO THINGS TO KNOW BEFORE EDITING
+   ---------------------------------
+   1. The mobile app is mid-rebrand and carries TWO palettes: a current LIGHT
+      AMBER system, and a legacy DARK EMERALD one that the driver, chat and KYC
+      screens still render. `ThemeContext.tsx:46` hard-forces light, so light
+      amber is the live brand and is what `:root` below encodes. The emerald
+      set is kept under `[data-theme="ops"]` because the driver/ops surfaces are
+      a deliberate second mood, not dead code.
+
+   2. `--color-primary` used to be `#000000` with the comment
+      "swap when Figma lands". It has landed, from the mobile source: the brand
+      is warm amber `#F3BA3F`. The token named `onboardingGreen` in the mobile
+      repo is amber — the name is legacy, the value is not.
+   ============================================================================ */
 
 :root {
-  /* Brand Colors */
-  --color-primary:        #000000; /* swap when Figma lands */
-  --color-primary-hover:  #1a1a1a;
-  --color-secondary:      #ffffff;
-  --color-accent:         #f5a623; /* highlight / CTA accent */
-  --color-accent-hover:   #e09610;
+  /* ── Brand ───────────────────────────────────────────────────────────────
+     Amber is the single hot accent. Butter is the soft/secondary CTA fill
+     (used on "Continue", "Find a ride", "Sign in with Google" in the app).
+     Text on amber is BLACK, not white — the amber is too light for white to
+     pass contrast, and the app does this consistently. */
+  --color-primary:            #f3ba3f;
+  --color-primary-hover:      #e0a92f;
+  --color-primary-active:     #c9942353;
+  --color-on-primary:         #000000;
+  --color-primary-tint:       rgb(243 186 63 / 0.14);
+  --color-primary-tint-strong:rgb(243 186 63 / 0.18);
+  --color-primary-border:     rgb(243 186 63 / 0.30);
+  --color-primary-ink:        #8a5c00; /* text on an amber tint */
 
-  /* Neutrals */
-  --color-bg:             #ffffff;
-  --color-bg-subtle:      #f7f7f7;
-  --color-bg-muted:       #efefef;
-  --color-surface:        #ffffff;
-  --color-border:         #e4e4e4;
-  --color-border-strong:  #c4c4c4;
+  --color-secondary:          #feee8f; /* butter — soft CTA */
+  --color-secondary-hover:    #f7e370;
+  --color-on-secondary:       #000000;
 
-  /* Text */
-  --color-text:           #111111;
-  --color-text-muted:     #6b6b6b;
-  --color-text-subtle:    #9b9b9b;
-  --color-text-inverse:   #ffffff;
+  /* ── Surfaces ────────────────────────────────────────────────────────────
+     Page is a cool near-white; cards are pure white. The app never puts a
+     white card on a white page — the F5F7F8/FFFFFF pair is what gives cards
+     their edge without a shadow. */
+  --color-bg:                 #f5f7f8;
+  --color-surface:            #ffffff;
+  --color-surface-alt:        #f0f2f4;
+  --color-surface-sunken:     rgb(0 0 0 / 0.03);
+  --color-surface-hover:      rgb(0 0 0 / 0.04);
+  --color-surface-active:     rgb(0 0 0 / 0.06);
+  --color-surface-disabled:   #e5e7eb;
 
-  /* Status */
-  --color-success:        #16a34a;
-  --color-warning:        #f59e0b;
-  --color-error:          #dc2626;
-  --color-info:           #2563eb;
+  /* The one dark object per screen — the wallet/balance hero. Deep navy
+     slate, the same value as the ink. */
+  --color-surface-inverse:    #152531;
+  --color-on-inverse:         #ffffff;
+  --color-on-inverse-muted:   rgb(255 255 255 / 0.70);
 
-  /* Typography */
-  --font-sans:            var(--font-geist-sans), system-ui, sans-serif;
-  --font-mono:            var(--font-geist-mono), monospace;
+  /* ── Borders ─────────────────────────────────────────────────────────────
+     Depth in this design comes from hairlines over translucent fills, not
+     shadows. `--color-border` is THE line. */
+  --color-border:             rgb(0 0 0 / 0.08);
+  --color-border-subtle:      rgb(0 0 0 / 0.06);
+  --color-border-strong:      #e5e7eb;
+  --color-border-input:       #e4e4e4;
 
-  --text-xs:    0.75rem;   /* 12px */
-  --text-sm:    0.875rem;  /* 14px */
-  --text-base:  1rem;      /* 16px */
-  --text-lg:    1.125rem;  /* 18px */
-  --text-xl:    1.25rem;   /* 20px */
-  --text-2xl:   1.5rem;    /* 24px */
-  --text-3xl:   1.875rem;  /* 30px */
-  --text-4xl:   2.25rem;   /* 36px */
-  --text-5xl:   3rem;      /* 48px */
-  --text-6xl:   3.75rem;   /* 60px */
-  --text-7xl:   4.5rem;    /* 72px */
+  /* ── Text ────────────────────────────────────────────────────────────────
+     Primary text is #152531 — a deep navy-slate. Deliberately NOT #000: it is
+     warmer and less harsh, and every screen in the app uses it. */
+  --color-text:               #152531;
+  --color-text-soft:          #374151;
 
-  --font-normal:   400;
-  --font-medium:   500;
-  --font-semibold: 600;
-  --font-bold:     700;
-  --font-black:    900;
+  /* ACCESSIBILITY DEVIATION FROM MOBILE — deliberate, and the only one.
+     Mobile's `textMuted #6b7280` and `textSubtle #8a8f98` measure 4.50:1 and
+     3.25:1 against this page background. The first sits exactly on the WCAG AA
+     threshold (one rounding away from failing) and the second fails outright,
+     so eyebrows, captions and footer meta would be non-compliant.
+     Darkened along the same hue until each clears 4.6:1 with headroom. The
+     shift is imperceptible next to the phone; the compliance difference is not.
+     Verified by `scripts/dev/check-contrast.mjs`. */
+  --color-text-muted:         #69707e; /* was #6b7280 — 4.63:1 on page */
+  --color-text-subtle:        #6a6f78; /* was #8a8f98 — 4.70:1 on page */
 
-  --leading-tight:  1.25;
-  --leading-snug:   1.375;
-  --leading-normal: 1.5;
-  --leading-relaxed:1.625;
+  /* Placeholder and disabled text is exempt: WCAG does not require contrast
+     for disabled controls, and a placeholder that matches body text reads as a
+     filled field. Kept at mobile's values. */
+  --color-text-placeholder:   #9ca3af;
+  --color-text-disabled:      #9ca3af;
+  --color-text-inverse:       #ffffff;
 
-  /* Spacing (layout building blocks) */
-  --space-1:   0.25rem;  /* 4px */
-  --space-2:   0.5rem;   /* 8px */
-  --space-3:   0.75rem;  /* 12px */
-  --space-4:   1rem;     /* 16px */
-  --space-5:   1.25rem;  /* 20px */
-  --space-6:   1.5rem;   /* 24px */
-  --space-8:   2rem;     /* 32px */
-  --space-10:  2.5rem;   /* 40px */
-  --space-12:  3rem;     /* 48px */
-  --space-16:  4rem;     /* 64px */
-  --space-20:  5rem;     /* 80px */
-  --space-24:  6rem;     /* 96px */
-  --space-32:  8rem;     /* 128px */
+  /* ── Status ──────────────────────────────────────────────────────────────
+     Green is success/credit, and is also the ops/driver brand accent.
+     Red doubles as the safety/SOS colour. */
+  --color-success:            #2fb56a;
+  --color-success-strong:     #22a34b;
+  --color-success-tint:       rgb(48 147 113 / 0.10);
+  --color-success-border:     rgb(48 147 113 / 0.22);
 
-  /* Border Radius */
-  --radius-sm:   0.25rem;  /* 4px */
-  --radius-md:   0.5rem;   /* 8px */
-  --radius-lg:   0.75rem;  /* 12px */
-  --radius-xl:   1rem;     /* 16px */
-  --radius-2xl:  1.5rem;   /* 24px */
-  --radius-full: 9999px;
+  --color-warning:            #d8a706;
+  --color-warning-tint:       rgb(216 167 6 / 0.12);
 
-  /* Shadows */
-  --shadow-sm:  0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md:  0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-  --shadow-lg:  0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-  --shadow-xl:  0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+  --color-danger:             #dc2626;
+  --color-danger-soft:        #e5484d;
+  --color-danger-tint:        rgb(220 38 38 / 0.08);
+  --color-danger-border:      #f3b0b0;
 
-  /* Layout */
-  --container-max:  1280px;
-  --container-pad:  1.5rem;
+  --color-info:               #1890ff;
 
-  /* Transitions */
-  --transition-fast:   150ms ease;
-  --transition-base:   200ms ease;
-  --transition-slow:   300ms ease;
+  /* ── Typography ──────────────────────────────────────────────────────────
+     Mobile uses Euclid Circular A (commercial, Swiss Typefaces) in 4 weights.
+     Its app licence does NOT cover webfont use, so the web ships a free
+     geometric sans through this one token. Swapping back is a one-line change
+     here plus a next/font swap in layout.tsx — nothing else references a
+     family name. */
+  --font-sans:  var(--font-brand), ui-sans-serif, system-ui, -apple-system,
+                "Segoe UI", Roboto, sans-serif;
+  --font-mono:  ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  /* Z-index scale */
-  --z-base:    0;
-  --z-above:   10;
-  --z-dropdown:20;
-  --z-sticky:  30;
-  --z-overlay: 40;
-  --z-modal:   50;
-  --z-toast:   60;
+  /* Scale measured off the mobile screens. Note how small it runs: 10-14px
+     carries most of this interface, with exactly ONE large number per screen
+     (fare, balance, earnings). Resist inflating these. */
+  --text-nano:   0.5rem;    /*  8px — legal, micro badges           */
+  --text-2xs:    0.625rem;  /* 10px — labels, card subtitles        */
+  --text-xs:     0.6875rem; /* 11px — addresses, meta               */
+  --text-sm:     0.75rem;   /* 12px — captions, dates               */
+  --text-base:   0.875rem;  /* 14px — BODY. the workhorse size      */
+  --text-md:     0.9375rem; /* 15px — list names, section titles    */
+  --text-lg:     1rem;      /* 16px — button labels, card titles    */
+  --text-xl:     1.125rem;  /* 18px — page header titles            */
+  --text-2xl:    1.25rem;   /* 20px — sheet titles                  */
+  --text-3xl:    1.375rem;  /* 22px — auth headings                 */
+  --text-4xl:    1.5rem;    /* 24px — screen headings               */
+  --text-5xl:    1.6875rem; /* 27px — onboarding headline           */
+  --text-6xl:    1.875rem;  /* 30px — home greeting                 */
+  --text-7xl:    2rem;      /* 32px — role-select headline          */
+  --text-8xl:    2.125rem;  /* 34px — wallet balance hero           */
+  --text-9xl:    2.5rem;    /* 40px — driver earnings hero          */
+  --text-10xl:   4rem;      /* 64px — SOS countdown                 */
+
+  /* Web adds a display tier the phone has no room for. */
+  --text-display-sm: 2.5rem;   /* 40px */
+  --text-display:    3.25rem;  /* 52px */
+  --text-display-lg: 4.25rem;  /* 68px */
+
+  --weight-regular:  400;
+  --weight-medium:   500;
+  --weight-semibold: 600;
+  --weight-bold:     700;
+
+  --leading-tight:   1.15;
+  --leading-snug:    1.3;
+  --leading-normal:  1.45;
+  --leading-relaxed: 1.6;
+
+  /* Letter-spacing appears in exactly one place in the app: uppercase
+     eyebrows. Keeping it scoped to that use is part of the look. */
+  --tracking-eyebrow: 0.08em;
+  --tracking-tight:   -0.02em;
+
+  /* ── Radii ───────────────────────────────────────────────────────────────
+     NOTHING in this design has a square corner. Full pills for anything
+     interactive; big soft radii where content lifts over a photograph. */
+  --radius-xs:    0.25rem;  /*  4px */
+  --radius-sm:    0.5rem;   /*  8px — the default surface radius */
+  --radius-md:    0.75rem;  /* 12px — cards, chips, icon pucks   */
+  --radius-lg:    1rem;     /* 16px — fare cards, glass cards    */
+  --radius-xl:    1.25rem;  /* 20px — hero cards, headers        */
+  --radius-2xl:   1.5rem;   /* 24px — bottom sheets, wallet hero */
+  --radius-3xl:   1.875rem; /* 30px — content lifting over media */
+  --radius-pill:  9999px;
+
+  /* ── Spacing ─────────────────────────────────────────────────────────────
+     Mobile has no named scale — every screen multiplies Figma pixels by
+     `W/390`. These are the values that actually recur. */
+  --space-1:   0.25rem;   /*  4px */
+  --space-2:   0.5rem;    /*  8px */
+  --space-3:   0.75rem;   /* 12px */
+  --space-4:   1rem;      /* 16px — the canonical gutter */
+  --space-5:   1.25rem;   /* 20px */
+  --space-6:   1.5rem;    /* 24px */
+  --space-8:   2rem;      /* 32px */
+  --space-10:  2.5rem;    /* 40px */
+  --space-12:  3rem;      /* 48px */
+  --space-16:  4rem;      /* 64px */
+  --space-20:  5rem;      /* 80px */
+  --space-24:  6rem;      /* 96px */
+  --space-32:  8rem;      /* 128px */
+
+  /* Control heights, straight off the app. */
+  --control-sm: 2.5rem;   /* 40px */
+  --control-md: 3rem;     /* 48px — GreenButton */
+  --control-lg: 3.375rem; /* 54px — FormInput */
+  --control-xl: 3.5rem;   /* 56px — auth CTAs */
+
+  /* ── Elevation ───────────────────────────────────────────────────────────
+     The app is almost entirely flat. There is exactly ONE real shadow in it:
+     the amber glow under the primary button. Everything else is a hairline.
+     Web adds two restrained lifts for menus and modals, which have no phone
+     equivalent. */
+  --shadow-primary: 0 8px 8px -4px rgb(243 186 63 / 0.30);
+  --shadow-sm:      0 1px 2px rgb(21 37 49 / 0.04);
+  --shadow-md:      0 4px 16px -4px rgb(21 37 49 / 0.10);
+  --shadow-lg:      0 16px 48px -12px rgb(21 37 49 / 0.18);
+
+  /* ── Layout ──────────────────────────────────────────────────────────────
+     The design was drawn at 390-393px. Web scales up from there. */
+  --container-max: 1200px;
+  --container-wide: 1400px;
+  --container-pad: var(--space-5);
+
+  /* ── Motion ──────────────────────────────────────────────────────────────
+     Motion is part of this brand, not decoration: spring sheets, odometer
+     balance reveals, radar pulses, sweeping gauges. `--ease-out-expo` is the
+     app's `Easing.bezier(0.16, 1, 0.3, 1)`. */
+  --ease-out-expo:  cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-spring:    cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast:  140ms;
+  --duration-base:  240ms;
+  --duration-slow:  600ms;
+
+  --z-base:     0;
+  --z-sticky:   10;
+  --z-overlay:  40;
+  --z-modal:    50;
+  --z-toast:    60;
 }
 
-/* ============================================================
-   TAILWIND v4 THEME MAPPING — wires tokens into utility classes
-   ============================================================ */
+/* ── Ops / driver mood ──────────────────────────────────────────────────────
+   The mobile driver app, chat, interstate and KYC screens run a deliberately
+   different palette: near-black glass with emerald accents. It reads as a
+   trading terminal — technical and high-signal — against the rider app's
+   warm, friendly light. Opt in with `data-theme="ops"` on any subtree. */
+[data-theme="ops"] {
+  --color-primary:            #50c878;
+  --color-primary-hover:      #45b76b;
+  --color-on-primary:         #071b0e;
+  --color-primary-tint:       rgb(80 200 120 / 0.11);
+  --color-primary-tint-strong:rgb(80 200 120 / 0.15);
+  --color-primary-border:     rgb(80 200 120 / 0.30);
+  --color-primary-ink:        #50c878;
 
+  --color-bg:                 #0b0d12;
+  --color-surface:            #111d26;
+  --color-surface-alt:        #162130;
+  --color-surface-sunken:     rgb(255 255 255 / 0.05);
+  --color-surface-hover:      rgb(255 255 255 / 0.06);
+  --color-surface-active:     rgb(255 255 255 / 0.07);
+  --color-surface-disabled:   #333333;
+  --color-surface-inverse:    #ffffff;
+  --color-on-inverse:         #152531;
+  --color-on-inverse-muted:   rgb(21 37 49 / 0.70);
+
+  --color-border:             rgb(255 255 255 / 0.10);
+  --color-border-subtle:      rgb(255 255 255 / 0.07);
+  --color-border-strong:      #1e2d3a;
+  --color-border-input:       rgb(255 255 255 / 0.10);
+
+  --color-text:               #ffffff;
+  --color-text-soft:          #e2e0e1;
+  --color-text-muted:         #818181;
+  --color-text-subtle:        #8e8e93;
+  --color-text-placeholder:   #606161;
+  --color-text-disabled:      #848484;
+
+  --color-success:            #50c878;
+  --color-success-strong:     #30d158;
+  --color-success-tint:       rgb(80 200 120 / 0.11);
+  --color-success-border:     rgb(80 200 120 / 0.30);
+  --color-danger:             #ff6b6b;
+  --color-danger-soft:        #ff9292;
+  --color-danger-tint:        rgb(223 0 0 / 0.10);
+
+  --shadow-primary: 0 8px 8px -4px rgb(80 200 120 / 0.30);
+  color-scheme: dark;
+}
+
+/* ============================================================================
+   TAILWIND THEME
+   ----------------------------------------------------------------------------
+   Everything a component needs as a utility goes here. The previous version
+   only exported colours and fonts, which is why the existing portals reach for
+   `py-[var(--space-16)]` arbitrary syntax instead of `py-16`. Exporting the
+   spacing, radius, shadow and text scales removes that whole class of noise.
+   ============================================================================ */
 @theme inline {
-  /* Colors */
-  --color-primary:        var(--color-primary);
-  --color-primary-hover:  var(--color-primary-hover);
-  --color-secondary:      var(--color-secondary);
-  --color-accent:         var(--color-accent);
-  --color-accent-hover:   var(--color-accent-hover);
-  --color-bg:             var(--color-bg);
-  --color-bg-subtle:      var(--color-bg-subtle);
-  --color-bg-muted:       var(--color-bg-muted);
-  --color-surface:        var(--color-surface);
-  --color-border:         var(--color-border);
-  --color-border-strong:  var(--color-border-strong);
-  --color-text:           var(--color-text);
-  --color-text-muted:     var(--color-text-muted);
-  --color-text-subtle:    var(--color-text-subtle);
-  --color-text-inverse:   var(--color-text-inverse);
-  --color-success:        var(--color-success);
-  --color-warning:        var(--color-warning);
-  --color-error:          var(--color-error);
-  --color-info:           var(--color-info);
+  --color-primary:            var(--color-primary);
+  --color-primary-hover:      var(--color-primary-hover);
+  --color-primary-tint:       var(--color-primary-tint);
+  --color-primary-tint-strong:var(--color-primary-tint-strong);
+  --color-primary-border:     var(--color-primary-border);
+  --color-primary-ink:        var(--color-primary-ink);
+  --color-on-primary:         var(--color-on-primary);
+  --color-secondary:          var(--color-secondary);
+  --color-secondary-hover:    var(--color-secondary-hover);
+  --color-on-secondary:       var(--color-on-secondary);
 
-  /* Fonts */
+  --color-bg:                 var(--color-bg);
+  --color-surface:            var(--color-surface);
+  --color-surface-alt:        var(--color-surface-alt);
+  --color-surface-sunken:     var(--color-surface-sunken);
+  --color-surface-hover:      var(--color-surface-hover);
+  --color-surface-active:     var(--color-surface-active);
+  --color-surface-disabled:   var(--color-surface-disabled);
+  --color-surface-inverse:    var(--color-surface-inverse);
+  --color-on-inverse:         var(--color-on-inverse);
+  --color-on-inverse-muted:   var(--color-on-inverse-muted);
+
+  --color-border:             var(--color-border);
+  --color-border-subtle:      var(--color-border-subtle);
+  --color-border-strong:      var(--color-border-strong);
+  --color-border-input:       var(--color-border-input);
+
+  --color-text:               var(--color-text);
+  --color-text-soft:          var(--color-text-soft);
+  --color-text-muted:         var(--color-text-muted);
+  --color-text-subtle:        var(--color-text-subtle);
+  --color-text-placeholder:   var(--color-text-placeholder);
+  --color-text-disabled:      var(--color-text-disabled);
+  --color-text-inverse:       var(--color-text-inverse);
+
+  --color-success:            var(--color-success);
+  --color-success-strong:     var(--color-success-strong);
+  --color-success-tint:       var(--color-success-tint);
+  --color-success-border:     var(--color-success-border);
+  --color-warning:            var(--color-warning);
+  --color-warning-tint:       var(--color-warning-tint);
+  --color-danger:             var(--color-danger);
+  --color-danger-soft:        var(--color-danger-soft);
+  --color-danger-tint:        var(--color-danger-tint);
+  --color-danger-border:      var(--color-danger-border);
+  --color-info:               var(--color-info);
+
   --font-sans: var(--font-sans);
   --font-mono: var(--font-mono);
+
+  --text-nano:   var(--text-nano);
+  --text-2xs:    var(--text-2xs);
+  --text-xs:     var(--text-xs);
+  --text-sm:     var(--text-sm);
+  --text-base:   var(--text-base);
+  --text-md:     var(--text-md);
+  --text-lg:     var(--text-lg);
+  --text-xl:     var(--text-xl);
+  --text-2xl:    var(--text-2xl);
+  --text-3xl:    var(--text-3xl);
+  --text-4xl:    var(--text-4xl);
+  --text-5xl:    var(--text-5xl);
+  --text-6xl:    var(--text-6xl);
+  --text-7xl:    var(--text-7xl);
+  --text-8xl:    var(--text-8xl);
+  --text-9xl:    var(--text-9xl);
+  --text-10xl:   var(--text-10xl);
+  --text-display-sm: var(--text-display-sm);
+  --text-display:    var(--text-display);
+  --text-display-lg: var(--text-display-lg);
+
+  --radius-xs:   var(--radius-xs);
+  --radius-sm:   var(--radius-sm);
+  --radius-md:   var(--radius-md);
+  --radius-lg:   var(--radius-lg);
+  --radius-xl:   var(--radius-xl);
+  --radius-2xl:  var(--radius-2xl);
+  --radius-3xl:  var(--radius-3xl);
+  --radius-pill: var(--radius-pill);
+
+  --spacing-1:  var(--space-1);
+  --spacing-2:  var(--space-2);
+  --spacing-3:  var(--space-3);
+  --spacing-4:  var(--space-4);
+  --spacing-5:  var(--space-5);
+  --spacing-6:  var(--space-6);
+  --spacing-8:  var(--space-8);
+  --spacing-10: var(--space-10);
+  --spacing-12: var(--space-12);
+  --spacing-16: var(--space-16);
+  --spacing-20: var(--space-20);
+  --spacing-24: var(--space-24);
+  --spacing-32: var(--space-32);
+
+  --shadow-primary: var(--shadow-primary);
+  --shadow-sm:      var(--shadow-sm);
+  --shadow-md:      var(--shadow-md);
+  --shadow-lg:      var(--shadow-lg);
+
+  --ease-out-expo: var(--ease-out-expo);
+  --ease-spring:   var(--ease-spring);
 }
 
-/* ============================================================
-   BASE STYLES
-   ============================================================ */
-
-*, *::before, *::after {
-  box-sizing: border-box;
+/* ============================================================================
+   BASE
+   ============================================================================ */
+* {
+  border-color: var(--color-border);
 }
 
 html {
+  -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
 }
 
 body {
-  background-color: var(--color-bg);
+  background: var(--color-bg);
   color: var(--color-text);
   font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* The mobile type runs small and relies on the geometric face reading
+     cleanly; without this the numerals in fares and balances sit unevenly. */
+  font-variant-numeric: tabular-nums;
 }
 
-/* ============================================================
-   VERIFICATION PORTAL — motion + focus polish
-   Scoped to `.verify-portal` so it never leaks into the site.
-   ============================================================ */
-
-@keyframes verify-step-in {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+/* Headings inherit the tight tracking the app uses on its large type. */
+h1, h2, h3, h4, h5, h6 {
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+  text-wrap: balance;
 }
 
-@keyframes verify-pop-in {
-  0%   { opacity: 0; transform: scale(0.8); }
-  60%  { transform: scale(1.06); }
+/* One visible focus treatment for the whole product, in the brand colour.
+   `:focus-visible` rather than `:focus` so a mouse click on a button does not
+   draw a ring, but a keyboard tab does. */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+::selection {
+  background: var(--color-primary-tint-strong);
+  color: var(--color-text);
+}
+
+/* ============================================================================
+   MOTION
+   ----------------------------------------------------------------------------
+   The phone app leans on spring sheets, odometer reveals, radar pulses and
+   sweeping gauges — motion is a real part of this brand rather than polish.
+   These are the web equivalents, and every one of them is disabled under
+   `prefers-reduced-motion`.
+   ============================================================================ */
+@keyframes ark-rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes ark-pop {
+  0%   { opacity: 0; transform: scale(0.92); }
+  60%  { opacity: 1; transform: scale(1.02); }
   100% { opacity: 1; transform: scale(1); }
 }
 
-/* Each step's form animates in as the route changes. */
-.verify-portal .step-in {
-  animation: verify-step-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
+/* The "searching for drivers" radar. */
+@keyframes ark-radar {
+  0%   { opacity: 0.6; transform: scale(0.6); }
+  100% { opacity: 0;   transform: scale(1.6); }
 }
 
-.verify-portal .pop-in {
-  animation: verify-pop-in 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+@keyframes ark-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
 }
 
-/* Consistent, visible keyboard focus across the portal. */
-.verify-portal :focus-visible {
-  outline: 2px solid var(--color-text);
-  outline-offset: 2px;
-  border-radius: 6px;
-}
+.ark-rise  { animation: ark-rise  var(--duration-slow) var(--ease-out-expo) both; }
+.ark-pop   { animation: ark-pop   var(--duration-base) var(--ease-spring) both; }
+.ark-pulse { animation: ark-pulse 2s ease-in-out infinite; }
+
+/* Stagger helper for lists that reveal in sequence, as the balance odometer
+   and driver lists do on mobile. */
+.ark-stagger > * { animation: ark-rise var(--duration-slow) var(--ease-out-expo) both; }
+.ark-stagger > *:nth-child(1) { animation-delay: 0ms; }
+.ark-stagger > *:nth-child(2) { animation-delay: 60ms; }
+.ark-stagger > *:nth-child(3) { animation-delay: 120ms; }
+.ark-stagger > *:nth-child(4) { animation-delay: 180ms; }
+.ark-stagger > *:nth-child(5) { animation-delay: 240ms; }
+.ark-stagger > *:nth-child(6) { animation-delay: 300ms; }
 
 @media (prefers-reduced-motion: reduce) {
-  .verify-portal .step-in,
-  .verify-portal .pop-in {
-    animation: none;
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
+}
+
+/* ============================================================================
+   VERIFY PORTAL
+   ----------------------------------------------------------------------------
+   Kept from the previous file: the driver-verification flow scopes its own
+   step transitions so they do not leak into the marketing site.
+   ============================================================================ */
+.verify-portal {
+  --verify-step-duration: var(--duration-base);
+}
+
+@keyframes verify-step-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@keyframes verify-pop-in {
+  0%   { opacity: 0; transform: scale(0.9); }
+  100% { opacity: 1; transform: scale(1); }
 }
