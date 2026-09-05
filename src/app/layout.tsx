@@ -1,3 +1,4 @@
+import { PrivyProvider } from "@/components/auth/PrivyProvider";
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
@@ -90,7 +91,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        {children}
+        <PrivyProvider>{children}</PrivyProvider>
       </body>
     </html>
   );

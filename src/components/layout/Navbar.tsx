@@ -90,13 +90,18 @@ export function Navbar() {
           </ul>
 
           <div className="hidden items-center gap-3 md:flex">
-            <Link href="/verify">
+            <Link href="/driver-login">
               <Button variant="ghost" size="sm">
-                Driver sign-in
+                Drive with us
               </Button>
             </Link>
-            <Link href="/#get-the-app">
-              <Button size="sm">Get the app</Button>
+            <Link href="/login">
+              <Button variant="outline" size="sm">
+                Sign in
+              </Button>
+            </Link>
+            <Link href="/register">
+              <Button size="sm">Book a ride</Button>
             </Link>
           </div>
 
@@ -151,13 +156,18 @@ export function Navbar() {
             ))}
           </ul>
           <div className="flex flex-col gap-3 pb-5">
-            <Link href="/verify" onClick={() => setOpen(false)}>
-              <Button variant="outline" fullWidth>
-                Driver sign-in
+            <Link href="/driver-login" onClick={() => setOpen(false)}>
+              <Button variant="ghost" fullWidth>
+                Drive with us
               </Button>
             </Link>
-            <Link href="/#get-the-app" onClick={() => setOpen(false)}>
-              <Button fullWidth>Get the app</Button>
+            <Link href="/login" onClick={() => setOpen(false)}>
+              <Button variant="outline" fullWidth>
+                Sign in
+              </Button>
+            </Link>
+            <Link href="/register" onClick={() => setOpen(false)}>
+              <Button fullWidth>Book a ride</Button>
             </Link>
           </div>
         </Container>

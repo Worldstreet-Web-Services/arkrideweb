@@ -1,7 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { loginRider, loginDriver, registerRider } from "@/lib/api/auth";
+import {
+  loginRider,
+  loginDriver,
+  registerRider,
+  registerDriver,
+} from "@/lib/api/auth";
 import { signOut as endSession } from "@/lib/api/session";
 import { ApiError } from "@/lib/api/types";
 
@@ -167,6 +172,68 @@ export async function registerRiderAction(
   }
 
   redirect("/app");
+}
+
+/**
+ * Driver registration.
+ *
+ * One call creates the driver AND their first vehicle — the vehicle fields are
+ * not optional on the API. The licence expiry must be a future date, and the
+ * phone must match `^(\+234|0)[789]\d{9}$`, which is NOT the rule rider
+ * registration uses; `registerDriver` normalises before sending.
+ *
+ * The driver lands on /driver in `pending` state. They cannot go online until
+ * an admin approves them, which is enforced server-side, so the dashboard
+ * shows the wait rather than a toggle that would fail.
+ */
+export async function registerDriverAction(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const password = String(formData.get("password") ?? "");
+
+  if (password.length < 8) {
+    return {
+      error: "Your password needs at least 8 characters.",
+      fieldErrors: { password: "Use at least 8 characters." },
+    };
+  }
+
+  const vehicleYear = Number(formData.get("vehicleYear"));
+  if (!Number.isInteger(vehicleYear)) {
+    return {
+      error: "Enter the vehicle year as a number.",
+      fieldErrors: { vehicleYear: "Enter a year, e.g. 2019." },
+    };
+  }
+
+  const vehicleType = String(formData.get("vehicleType") ?? "");
+  if (!["keke", "bike", "car", "courier"].includes(vehicleType)) {
+    return {
+      error: "Choose a vehicle type.",
+      fieldErrors: { vehicleType: "Choose a vehicle type." },
+    };
+  }
+
+  try {
+    await registerDriver({
+      name: String(formData.get("name") ?? "").trim(),
+      phone: String(formData.get("phone") ?? "").trim(),
+      email: String(formData.get("email") ?? "").trim(),
+      password,
+      licenseNumber: String(formData.get("licenseNumber") ?? "").trim(),
+      licenseExpiry: String(formData.get("licenseExpiry") ?? ""),
+      vehicleType: vehicleType as "keke" | "bike" | "car" | "courier",
+      plateNumber: String(formData.get("plateNumber") ?? "").trim().toUpperCase(),
+      vehicleColor: String(formData.get("vehicleColor") ?? "").trim(),
+      vehicleModel: String(formData.get("vehicleModel") ?? "").trim(),
+      vehicleYear,
+    });
+  } catch (error) {
+    return toFormState(error);
+  }
+
+  redirect("/driver");
 }
 
 export async function signOutAction(): Promise<void> {

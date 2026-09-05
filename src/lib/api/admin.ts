@@ -5,6 +5,7 @@ import { apiFetch } from "./client";
 import { getPrincipal } from "./session";
 import { ApiError } from "./types";
 import type { Principal } from "./auth";
+import { toNumber } from "./ride-model";
 
 /**
  * Admin authorisation and the driver review queue.
@@ -36,8 +37,15 @@ export interface Vehicle {
   year: number;
 }
 
-/** A driver as the admin endpoints return them — never includes `password`. */
-export interface AdminDriver {
+/**
+ * A driver as the API sends them.
+ *
+ * `ratingAverage` and `walletBalance` arrive as STRINGS — "0.00" — because
+ * they are Postgres `numeric` columns and node-postgres returns those as
+ * strings so no precision is lost to a float. `normalizeDriver` coerces them;
+ * without it, `ratingAverage.toFixed(1)` throws and takes the dashboard down.
+ */
+interface AdminDriverWire {
   id: string;
   name: string;
   email: string;
@@ -47,14 +55,33 @@ export interface AdminDriver {
   verificationStatus: VerificationStatus;
   isActive: boolean;
   isOnline: boolean;
-  ratingAverage: number | null;
+  ratingAverage: string | number | null;
   totalCompletedRides: number;
-  walletBalance: number;
+  walletBalance: string | number | null;
   privyDid?: string | null;
   walletAddressEvm?: string | null;
   vehicles?: Vehicle[];
   createdAt: string;
   updatedAt: string;
+}
+
+/** A driver with its numerics coerced. This is what components receive. */
+export interface AdminDriver
+  extends Omit<AdminDriverWire, "ratingAverage" | "walletBalance"> {
+  ratingAverage: number | null;
+  walletBalance: number;
+}
+
+function normalizeDriver(wire: AdminDriverWire): AdminDriver {
+  const rating = toNumber(wire.ratingAverage);
+  return {
+    ...wire,
+    // A brand-new driver has "0.00", which is a real zero, not "unrated" —
+    // but showing "0.0 ★" beside someone who has never driven is worse than
+    // showing nothing, so zero is treated as absent at the display layer.
+    ratingAverage: rating && rating > 0 ? rating : null,
+    walletBalance: toNumber(wire.walletBalance) ?? 0,
+  };
 }
 
 export interface AdminContext {
@@ -107,12 +134,15 @@ export async function requireAdmin(): Promise<AdminContext> {
  */
 export async function fetchDrivers(): Promise<AdminDriver[]> {
   return (
-    await apiFetch<AdminDriver[]>("/drivers", { cache: "no-store" })
-  ).data;
+    await apiFetch<AdminDriverWire[]>("/drivers", { cache: "no-store" })
+  ).data.map(normalizeDriver);
 }
 
 export async function fetchDriver(id: string): Promise<AdminDriver> {
-  return (await apiFetch<AdminDriver>(`/drivers/${id}`, { cache: "no-store" })).data;
+  return normalizeDriver(
+    (await apiFetch<AdminDriverWire>(`/drivers/${id}`, { cache: "no-store" }))
+      .data,
+  );
 }
 
 /**
@@ -129,12 +159,14 @@ export async function setVerificationStatus(
   status: VerificationStatus,
   reason?: string,
 ): Promise<AdminDriver> {
-  return (
-    await apiFetch<AdminDriver>(`/drivers/${driverId}/verification-status`, {
-      method: "PATCH",
-      body: { status, ...(reason ? { reason } : {}) },
-    })
-  ).data;
+  return normalizeDriver(
+    (
+      await apiFetch<AdminDriverWire>(`/drivers/${driverId}/verification-status`, {
+        method: "PATCH",
+        body: { status, ...(reason ? { reason } : {}) },
+      })
+    ).data,
+  );
 }
 
 /**
@@ -148,12 +180,14 @@ export async function setDriverActive(
   isActive: boolean,
   reason?: string,
 ): Promise<AdminDriver> {
-  return (
-    await apiFetch<AdminDriver>(`/drivers/${driverId}/active-status`, {
-      method: "PATCH",
-      body: { isActive, ...(reason ? { reason } : {}) },
-    })
-  ).data;
+  return normalizeDriver(
+    (
+      await apiFetch<AdminDriverWire>(`/drivers/${driverId}/active-status`, {
+        method: "PATCH",
+        body: { isActive, ...(reason ? { reason } : {}) },
+      })
+    ).data,
+  );
 }
 
 /** Split the queue the way the dashboard shows it. */

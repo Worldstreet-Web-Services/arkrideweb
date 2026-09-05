@@ -42,7 +42,7 @@ export function DriverSignup() {
               </p>
 
               <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link href="/verify" className="w-full sm:w-auto">
+                <Link href="/driver-register" className="w-full sm:w-auto">
                   <Button size="lg" fullWidth className="sm:w-52">
                     Start verification
                   </Button>
