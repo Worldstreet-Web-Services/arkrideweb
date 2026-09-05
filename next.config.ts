@@ -74,14 +74,24 @@ function csp(): string {
 
 const nextConfig: NextConfig = {
   /**
-   * Standalone output for containers.
+   * Standalone output — for CONTAINERS ONLY.
    *
    * Next traces the modules actually reached and copies them, plus a minimal
    * server, into `.next/standalone`. The runtime image then needs neither the
    * source nor `node_modules` — which matters here, because Privy pulls in
    * roughly 990 packages and a naive image ships all of them.
+   *
+   * MUST NOT BE SET ON VERCEL. Vercel runs its own output tracing and expects
+   * the default build layout; with `standalone` the trace manifests land
+   * somewhere else and its post-build step dies with
+   *   ENOENT: .next/next-server.js.nft.json
+   * after an otherwise clean compile — which reads as a mysterious failure,
+   * because the build genuinely succeeded and only the packaging step broke.
+   *
+   * `VERCEL` is set by Vercel in every build and deployment environment, so
+   * this picks the right mode with no per-branch configuration.
    */
-  output: "standalone",
+  output: process.env.VERCEL ? undefined : "standalone",
 
   async headers() {
     return [
