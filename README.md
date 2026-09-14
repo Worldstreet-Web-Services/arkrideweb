@@ -6,6 +6,7 @@ Next.js 16 application talking to the Arkride NestJS API.
 
 ```
 /                     marketing site, live network stats
+/waitlist             pre-launch waitlist: email capture into the API's launch list
 /login /register      rider sign-in and sign-up (password or Privy)
 /driver-login
 /driver-register      driver sign-up: account + first vehicle in one step
