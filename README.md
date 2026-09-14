@@ -5,8 +5,8 @@ the driver verification portal, and the operations review dashboard — one
 Next.js 16 application talking to the Arkride NestJS API.
 
 ```
-/                     marketing site, live network stats
-/waitlist             pre-launch waitlist: email capture into the API's launch list
+/                     pre-launch waitlist: email capture into the API's launch list
+/home                 marketing site, live network stats
 /login /register      rider sign-in and sign-up (password or Privy)
 /driver-login
 /driver-register      driver sign-up: account + first vehicle in one step

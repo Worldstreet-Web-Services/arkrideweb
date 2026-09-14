@@ -2,7 +2,10 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 
 /**
- * The waitlist page is set in three faces the rest of the site does not use:
+ * The waitlist page is the site's root while Ark Ride is pre-launch — this
+ * route group owns `/`, and the marketing site sits at `/home` until launch.
+ *
+ * It is set in three faces the rest of the site does not use:
  * Mona Sans for the headline, Geist for the body and the form, Inter for the
  * tag and the footer line. They are loaded HERE rather than in the root layout
  * so that only this route pays for them — every other page keeps shipping the

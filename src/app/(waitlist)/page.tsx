@@ -3,7 +3,7 @@ import { ArkRideMark } from "@/components/brand/ArkRideMark";
 import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 
 /**
- * The pre-launch waitlist page.
+ * The pre-launch waitlist page — the site's root until launch.
  *
  * A 1440 × 1024 scene — the Lagos pickup illustration edge to edge — with a
  * 613 × 748 white panel hung from the top edge at x=107. Every measurement

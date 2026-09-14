@@ -93,6 +93,14 @@ const nextConfig: NextConfig = {
    */
   output: process.env.VERCEL ? undefined : "standalone",
 
+  /**
+   * The waitlist page IS the root while the product is pre-launch. It
+   * shipped first at /waitlist, so that address keeps working.
+   */
+  async redirects() {
+    return [{ source: "/waitlist", destination: "/", permanent: false }];
+  },
+
   async headers() {
     return [
       {
