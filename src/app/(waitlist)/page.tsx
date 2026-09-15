@@ -2,6 +2,7 @@ import Image from "next/image";
 import { WaitlistDialog } from "@/components/waitlist/WaitlistDialog";
 import { LogoIntro } from "@/components/waitlist/LogoIntro";
 import { WaitlistLogo } from "@/components/waitlist/WaitlistLogo";
+import Link from "next/link";
 
 /**
  * The pre-launch waitlist page — the site's root until launch.
@@ -69,26 +70,13 @@ const CARDS = [
 
 /**
  * Set this to Ark Ride's X profile. The design draws the button but links nowhere.
- *
- * The ring is the file's 1.5px INSIDE stroke drawn as an inset shadow, not a
- * border: Chrome floors border widths to whole device pixels, so a 1.5px border
- * renders as 1px on a standard display, while a shadow spread does not snap.
+ * The WorldStreet badge sits beside it and always links to worldstreet.com.
  */
-const X_URL = process.env.NEXT_PUBLIC_ARKRIDE_X_URL;
+const X_URL = "https://x.com/_Arkride_";
+const WORLDSTREET_URL = "https://www.worldstreetgold.com/";
 
 export default function WaitlistPage() {
-  const xBadge = (
-    <Image
-      src="/waitlist/icons/x.svg"
-      alt=""
-      width={20}
-      height={20}
-      unoptimized
-      className="h-5 w-5"
-    />
-  );
-  const xButtonClass =
-    "mt-6 flex h-[34px] w-[34px] items-center justify-center rounded-[17px] shadow-[inset_0_0_0_1.5px_#fff] xl:absolute xl:left-[1326px] xl:top-[103px] xl:mt-0";
+  const badgeClass = "flex h-[34px] w-[34px] items-center justify-center";
 
   return (
     <main
@@ -189,21 +177,54 @@ export default function WaitlistPage() {
             </p>
           </div>
 
-          {X_URL ? (
-            <a
-              href={X_URL}
+          <div className="mt-6 flex items-center gap-3 xl:absolute xl:top-[103px] xl:left-[1326px] xl:mt-0">
+            <Link
+              href={WORLDSTREET_URL}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="Ark Ride on X"
-              className={`${xButtonClass} transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+              aria-label="WorldStreet"
+              className={`${badgeClass} transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
             >
-              {xBadge}
-            </a>
-          ) : (
-            <span aria-hidden className={xButtonClass}>
-              {xBadge}
-            </span>
-          )}
+              <Image
+                src="/WorldStreet4.webp"
+                alt=""
+                width={20}
+                height={20}
+                unoptimized
+                className="h-5 w-5"
+              />
+            </Link>
+
+            {X_URL ? (
+              <Link
+                href={X_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ark Ride on X"
+                className={`${badgeClass} transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+              >
+                <Image
+                  src="/waitlist/icons/x.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  unoptimized
+                  className="h-5 w-5"
+                />
+              </Link>
+            ) : (
+              <span aria-hidden className={badgeClass}>
+                <Image
+                  src="/waitlist/icons/x.svg"
+                  alt=""
+                  width={20}
+                  height={20}
+                  unoptimized
+                  className="h-5 w-5"
+                />
+              </span>
+            )}
+          </div>
         </div>
 
         {/*
