@@ -3,29 +3,36 @@ import "server-only";
 import { api } from "./client";
 
 /**
- * The pre-launch waitlist, `POST /api/v1/waitlist`.
+ * The pre-launch waitlist: `POST /api/v1/public/waitlist`, served by
+ * arkride-backend's `apps/api/src/public` module.
  *
- * Anonymous by design — nobody on the waitlist has an account yet. The API
- * stores the address once and answers the same way whether it was new or
- * already there, so this endpoint cannot be used to check who has signed up.
+ * Anonymous. The API stores one row per email address and answers a repeat
+ * with a 409, which the server action turns into the same "you're on the
+ * list" outcome the person wanted.
  */
-export interface WaitlistSignup {
+export type WaitlistUserType = "user" | "driver";
+
+/** The row the API returns on 201. */
+export interface WaitlistEntry {
+  id: string;
   email: string;
-  joined: true;
+  userType: WaitlistUserType;
+  feature: string | null;
+  createdAt: string;
 }
 
 export interface JoinWaitlistInput {
   email: string;
-  /** Who is joining. The API defaults to `user` when this is absent. */
-  role?: "user" | "driver";
-  /** The feature they would most like to see. Optional, up to 500 characters. */
+  userType: WaitlistUserType;
+  /** "What feature would you like to see?" Optional, up to 500 characters. */
   feature?: string;
-  /** Where the sign-up came from, for the ops team. This page sends `web`. */
-  source?: string;
+  /** Required by the API. */
+  phoneNumber: string;
+  name?: string;
 }
 
-export function joinWaitlist(input: JoinWaitlistInput): Promise<WaitlistSignup> {
-  return api<WaitlistSignup>("/waitlist", {
+export function joinWaitlist(input: JoinWaitlistInput): Promise<WaitlistEntry> {
+  return api<WaitlistEntry>("/public/waitlist", {
     method: "POST",
     body: input,
     auth: false,

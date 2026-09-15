@@ -9,11 +9,13 @@ import { RoleDropdown } from "./RoleDropdown";
 const INITIAL: WaitlistState = { status: "idle" };
 
 /**
- * The form row on the waitlist page: role, email, a feature wish, submit.
+ * The form row on the waitlist page: role, email, phone, a feature wish, submit.
  *
- * At xl it is the design's row exactly — an 863px horizontal auto-layout with
- * 12px gaps holding the 149 dropdown, the 238 email field, the 257 feature
- * field and the 183 button, all 40 tall. The fields are #FDFBFB with a 1px
+ * At xl it is the design's row — a horizontal auto-layout with 12px gaps
+ * holding the 149 dropdown, the 238 email field, the 257 feature field and the
+ * 183 button, all 40 tall — plus one control the design does not have: a phone
+ * field, which the backend requires. It reuses the email field exactly (238
+ * wide), so the row is 1113px and stays centred where the design's 863 was. The fields are #FDFBFB with a 1px
  * #E1E1E1 stroke that the file counts IN the layout, radius 10, padding
  * 6/10/6/12, and a 16px glyph 9px before a Geist 400 10/26 placeholder in
  * #A7A5A5. Because the stroke is inside the layout box, CSS border-box with a
@@ -42,7 +44,7 @@ export function WaitlistForm({ className = "" }: { className?: string }) {
         noValidate
         className="flex flex-col gap-3 md:grid md:grid-cols-2 xl:flex xl:flex-row xl:items-center"
       >
-        <RoleDropdown name="role" disabled={joined} />
+        <RoleDropdown name="userType" disabled={joined} />
 
         <label className={`${field} xl:w-[238px] xl:shrink-0`}>
           <Image
@@ -62,6 +64,35 @@ export function WaitlistForm({ className = "" }: { className?: string }) {
             required
             disabled={joined}
             placeholder="Enter your email address"
+            aria-describedby="waitlist-status"
+            className={input}
+          />
+        </label>
+
+        {/*
+          Not in the design: the backend's waitlist requires a phone number,
+          and the team asked for it on the page. It is the email field's own
+          component and width, placed after email.
+        */}
+        <label className={`${field} xl:w-[238px] xl:shrink-0`}>
+          <Image
+            src="/waitlist/icons/phone.svg"
+            alt=""
+            width={16}
+            height={16}
+            unoptimized
+            className="h-4 w-4 shrink-0"
+          />
+          <span className="sr-only">Phone number</span>
+          <input
+            name="phoneNumber"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            required
+            maxLength={20}
+            disabled={joined}
+            placeholder="Enter your phone number"
             aria-describedby="waitlist-status"
             className={input}
           />
@@ -124,7 +155,7 @@ function SubmitButton({ disabled }: { disabled: boolean }) {
       type="submit"
       disabled={pending || disabled}
       aria-busy={pending}
-      className="h-12 w-full rounded-[11px] bg-[#FEEE8F] px-[22px] font-(family-name:--font-mona-sans) text-[16px] leading-[26px] font-semibold text-black transition-colors hover:bg-secondary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 xl:h-10 xl:w-[183px] xl:shrink-0 xl:text-[12px]"
+      className="h-12 w-full rounded-[11px] bg-[#FEEE8F] md:col-span-2 xl:col-span-1 px-[22px] font-(family-name:--font-mona-sans) text-[16px] leading-[26px] font-semibold text-black transition-colors hover:bg-secondary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 xl:h-10 xl:w-[183px] xl:shrink-0 xl:text-[12px]"
     >
       <span className="relative xl:top-[1.2px]">
         {pending ? "Joining…" : "Join the Waitlist"}

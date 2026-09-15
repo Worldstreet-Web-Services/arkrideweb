@@ -11,6 +11,8 @@ import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
  *
  *   logo        (79.14, 59)     106 × 33   the website mark at 0.86885 scale
  *   hero group  (289, 117)      863 wide   tag, headline, copy, form row
+ *   form row    1113 wide, centred on the hero — the design's 863 plus the
+ *               backend-required phone field (238) and its 12px gap
  *   cards       (373, 593) (213, 740) (408, 887)   232 × 113.47, radius 17.35
  *   phone       (576, 448)      864 × 937  under the footer, which covers it
  *   footer      (0, 1237)       black, 221 tall (the frame clips it at 1458)
@@ -118,7 +120,7 @@ export default function WaitlistPage() {
               your day.
             </p>
 
-            <WaitlistForm className="mt-8 w-full max-w-[720px] xl:absolute xl:top-[281px] xl:left-0 xl:mt-0 xl:w-[863px] xl:max-w-none" />
+            <WaitlistForm className="mt-8 w-full max-w-[720px] xl:absolute xl:top-[281px] xl:left-[-125px] xl:mt-0 xl:w-[1113px] xl:max-w-none" />
           </div>
         </div>
 

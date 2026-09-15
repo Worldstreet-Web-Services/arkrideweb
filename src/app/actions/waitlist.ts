@@ -15,6 +15,8 @@ export interface WaitlistState {
  */
 const LOOKS_LIKE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+const JOINED = "You're on the list. We'll email you when Ark Ride launches.";
+
 export async function joinWaitlistAction(
   _prev: WaitlistState,
   formData: FormData,
@@ -27,22 +29,34 @@ export async function joinWaitlistAction(
     return { status: "error", message: "Enter a valid email address." };
   }
 
-  // Anything other than an explicit "driver" is a rider — the dropdown only
+  const phoneNumber = String(formData.get("phoneNumber") ?? "").trim();
+  // The API only insists on a non-empty string. Seven digits is the shortest
+  // real subscriber number anywhere, so fewer is a typo worth catching here.
+  if ((phoneNumber.match(/\d/g) ?? []).length < 7) {
+    return { status: "error", message: "Enter a valid phone number." };
+  }
+
+  // Anything other than an explicit "driver" is a rider: the dropdown only
   // offers the two, and a tampered value should not become a third.
-  const role = formData.get("role") === "driver" ? "driver" : "user";
+  const userType = formData.get("userType") === "driver" ? "driver" : "user";
   const feature =
     String(formData.get("feature") ?? "")
       .trim()
       .slice(0, 500) || undefined;
 
   try {
-    await joinWaitlist({ email, role, feature, source: "web" });
-    return {
-      status: "joined",
-      message: "You're on the list. We'll email you when Ark Ride launches.",
-    };
+    await joinWaitlist({ email, phoneNumber, userType, feature });
+    return { status: "joined", message: JOINED };
   } catch (error) {
     if (error instanceof ApiError) {
+      // 409: the address is already on the list. For the person at the
+      // keyboard that is the outcome they came for, so it reads as success.
+      if (error.code === "CONFLICT") {
+        return {
+          status: "joined",
+          message: "You're already on the list. We'll email you when Ark Ride launches.",
+        };
+      }
       if (error.isRateLimited) {
         return {
           status: "error",
@@ -50,11 +64,13 @@ export async function joinWaitlistAction(
         };
       }
       if (error.code === "VALIDATION_FAILED") {
+        const fields = error.toFieldMap();
         return {
           status: "error",
           message:
-            error.toFieldMap().email ??
-            error.toFieldMap().feature ??
+            fields.email ??
+            fields.feature ??
+            fields.phoneNumber ??
             "Please check the form and try again.",
         };
       }
