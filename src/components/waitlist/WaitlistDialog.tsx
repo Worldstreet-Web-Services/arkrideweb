@@ -1,22 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useJoinWaitlist } from "@/hooks/useJoinWaitlist";
 import {
-  useActionState,
-  useCallback,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
-import { useFormStatus } from "react-dom";
-import {
-  joinWaitlistAction,
+  WaitlistApiError,
+  readWaitlistFormValues,
+  toJoinWaitlistInput,
+  validateWaitlistInput,
   type WaitlistField,
-  type WaitlistState,
-} from "@/app/actions/waitlist";
-
-const INITIAL: WaitlistState = { status: "idle" };
+} from "@/services/waitlist.service";
 
 const ROLES = [
   { value: "user", label: "Book Ride", hint: "Get around the city" },
@@ -30,6 +23,22 @@ const FIELD_ORDER: readonly WaitlistField[] = [
   "phoneNumber",
   "feature",
 ];
+
+/** Move focus to the first field that has an error under it. */
+function focusFirstErrorField(
+  form: HTMLFormElement | null,
+  errors: Partial<Record<WaitlistField, string>>,
+) {
+  const first = FIELD_ORDER.find((field) => errors[field]);
+  if (!first || !form) return;
+  form
+    .querySelector<HTMLElement>(
+      first === "userType"
+        ? 'input[name="userType"]:checked, input[name="userType"]'
+        : `[name="${first}"]`,
+    )
+    ?.focus();
+}
 
 /**
  * "Join the Waitlist": the hero's button, and the dialog it opens.
@@ -161,41 +170,56 @@ function WaitlistPanel({
   onJoined: () => void;
   onDone: () => void;
 }) {
-  const [state, formAction] = useActionState(joinWaitlistAction, INITIAL);
+  const mutation = useJoinWaitlist();
   const formRef = useRef<HTMLFormElement>(null);
   const baseId = useId();
+  const [preflightErrors, setPreflightErrors] = useState<
+    Partial<Record<WaitlistField, string>>
+  >({});
 
   useEffect(() => {
-    if (state.status === "joined") {
-      onJoined();
-      return;
-    }
-    if (state.status !== "error") return;
-    const first = FIELD_ORDER.find((field) => state.fieldErrors?.[field]);
-    if (first) {
-      formRef.current
-        ?.querySelector<HTMLElement>(
-          first === "userType"
-            ? 'input[name="userType"]:checked, input[name="userType"]'
-            : `[name="${first}"]`,
-        )
-        ?.focus();
-    }
-  }, [state, onJoined]);
+    if (mutation.isSuccess) onJoined();
+  }, [mutation.isSuccess, onJoined]);
 
-  if (state.status === "joined") {
+  if (mutation.isSuccess) {
     return (
       <JoinedPanel
         titleId={titleId}
-        alreadyJoined={Boolean(state.alreadyJoined)}
+        alreadyJoined={Boolean(mutation.data?.alreadyJoined)}
         onDone={onDone}
       />
     );
   }
 
-  const errors = state.fieldErrors ?? {};
-  const values = state.values;
-  const chosen = values?.userType ?? "user";
+  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const values = readWaitlistFormValues(new FormData(event.currentTarget));
+    const errors = validateWaitlistInput(values);
+    if (Object.keys(errors).length > 0) {
+      setPreflightErrors(errors);
+      focusFirstErrorField(formRef.current, errors);
+      return;
+    }
+    setPreflightErrors({});
+    mutation.mutate(toJoinWaitlistInput(values), {
+      onError: (error) => {
+        if (error instanceof WaitlistApiError && error.fieldErrors) {
+          focusFirstErrorField(formRef.current, error.fieldErrors);
+        }
+      },
+    });
+  }
+
+  const serverFieldErrors =
+    mutation.error instanceof WaitlistApiError
+      ? (mutation.error.fieldErrors ?? {})
+      : {};
+  const errors =
+    Object.keys(preflightErrors).length > 0 ? preflightErrors : serverFieldErrors;
+  const generalMessage =
+    Object.keys(errors).length === 0 && mutation.error
+      ? mutation.error.message
+      : undefined;
   const id = (field: WaitlistField) => `${baseId}-${field}`;
 
   return (
@@ -212,7 +236,7 @@ function WaitlistPanel({
 
       <form
         ref={formRef}
-        action={formAction}
+        onSubmit={handleSubmit}
         noValidate
         className="mt-6 flex flex-col gap-5"
       >
@@ -230,7 +254,7 @@ function WaitlistPanel({
                   type="radio"
                   name="userType"
                   value={role.value}
-                  defaultChecked={chosen === role.value}
+                  defaultChecked={role.value === "user"}
                   className="sr-only"
                 />
                 <span className="flex items-start justify-between gap-2">
@@ -265,7 +289,6 @@ function WaitlistPanel({
             autoComplete="name"
             autoCapitalize="words"
             maxLength={100}
-            defaultValue={values?.name}
             placeholder="Enter your full name"
             aria-invalid={errors.name ? true : undefined}
             aria-describedby={errors.name ? `${id("name")}-error` : undefined}
@@ -286,7 +309,6 @@ function WaitlistPanel({
             inputMode="email"
             autoComplete="email"
             required
-            defaultValue={values?.email}
             placeholder="Enter your email address"
             aria-invalid={errors.email ? true : undefined}
             aria-describedby={errors.email ? `${id("email")}-error` : undefined}
@@ -308,7 +330,6 @@ function WaitlistPanel({
             autoComplete="tel"
             required
             maxLength={20}
-            defaultValue={values?.phoneNumber}
             placeholder="Enter your phone number"
             aria-invalid={errors.phoneNumber ? true : undefined}
             aria-describedby={
@@ -331,7 +352,6 @@ function WaitlistPanel({
             type="text"
             maxLength={500}
             autoComplete="off"
-            defaultValue={values?.feature}
             placeholder="e.g. Split a fare with friends"
             aria-invalid={errors.feature ? true : undefined}
             aria-describedby={errors.feature ? `${id("feature")}-error` : undefined}
@@ -339,17 +359,17 @@ function WaitlistPanel({
           />
         </Field>
 
-        {state.status === "error" && state.message ? (
+        {generalMessage ? (
           <p
             role="alert"
             className="rounded-[10px] bg-danger-tint px-3 py-2.5 font-(family-name:--font-geist) text-[13px] leading-[18px] text-danger"
           >
-            {state.message}
+            {generalMessage}
           </p>
         ) : null}
 
         <div className="flex flex-col gap-3">
-          <SubmitButton />
+          <SubmitButton pending={mutation.isPending} />
           <p className="text-center font-(family-name:--font-geist) text-[12px] leading-[17px] text-[#767676]">
             We’ll only use your details to tell you about Ark Ride.
           </p>
@@ -436,9 +456,7 @@ function FieldError({ id, message }: { id: string; message?: string }) {
   );
 }
 
-/** Its own component because `useFormStatus` reads the form ABOVE it. */
-function SubmitButton() {
-  const { pending } = useFormStatus();
+function SubmitButton({ pending }: { pending: boolean }) {
   return (
     <button
       type="submit"

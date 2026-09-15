@@ -1,6 +1,8 @@
 import { PrivyProvider } from "@/components/auth/PrivyProvider";
+import { Providers } from "./providers";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "sonner";
 import "./globals.css";
 
 /**
@@ -122,7 +124,33 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <PrivyProvider>{children}</PrivyProvider>
+        <Providers>
+          <PrivyProvider>{children}</PrivyProvider>
+          {/*
+            One global toaster for the whole app. Styled with this file's own
+            design tokens (`--color-success*`/`--color-danger*`/etc. from
+            globals.css) rather than sonner's defaults, on `--font-sans` (set
+            on <html>, so it reaches sonner's body-level portal too — unlike
+            the waitlist route's own Mona Sans/Geist, which are scoped to a
+            div inside that route and would not reach a portaled toast).
+            top-center so it never collides with the waitlist dialog, which
+            is a bottom sheet on mobile.
+          */}
+          <Toaster
+            position="top-center"
+            toastOptions={{
+              unstyled: true,
+              classNames: {
+                toast:
+                  "flex w-[calc(100vw-32px)] max-w-[380px] items-start gap-3 rounded-[10px] border bg-surface px-4 py-3 font-sans text-sm text-text shadow-[0_12px_32px_rgba(0,0,0,0.12)] border-border",
+                title: "font-semibold leading-[20px]",
+                description: "text-text-soft leading-[18px]",
+                success: "border-success-border bg-success-tint text-success-strong",
+                error: "border-danger-border bg-danger-tint text-danger",
+              },
+            }}
+          />
+        </Providers>
       </body>
     </html>
   );
