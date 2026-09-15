@@ -547,3 +547,13 @@ html:has(dialog[open]:modal) {
 html[data-intro] {
   overflow: hidden;
 }
+
+/* The waitlist page locks scrolling twice: under the logo intro and under the
+   join dialog. With a classic scrollbar (Windows, or macOS set to always show
+   scroll bars) removing it widens the page by its width and every centred
+   element jumps sideways, then jumps back on unlock. Reserving the gutter
+   keeps the page width the same locked or not. Overlay scrollbars reserve
+   nothing, so phones and default macOS are unaffected. */
+html:has(main[data-page="waitlist"]) {
+  scrollbar-gutter: stable;
+}

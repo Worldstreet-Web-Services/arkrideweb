@@ -93,6 +93,7 @@ export default function WaitlistPage() {
   return (
     <main
       id="main"
+      data-page="waitlist"
       className="flex min-h-dvh flex-col overflow-x-hidden bg-[#F9F9F9] text-black [font-variant-numeric:normal]"
     >
       <section className="relative px-5 pt-8 sm:px-8 xl:h-[1237px] xl:overflow-hidden xl:p-0">
