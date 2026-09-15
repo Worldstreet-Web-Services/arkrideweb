@@ -1,7 +1,7 @@
 import Image from "next/image";
-import { ArkRideMark } from "@/components/brand/ArkRideMark";
 import { WaitlistDialog } from "@/components/waitlist/WaitlistDialog";
 import { LogoIntro } from "@/components/waitlist/LogoIntro";
+import { WaitlistLogo } from "@/components/waitlist/WaitlistLogo";
 
 /**
  * The pre-launch waitlist page — the site's root until launch.
@@ -97,11 +97,8 @@ export default function WaitlistPage() {
       className="flex min-h-dvh flex-col overflow-x-hidden bg-[#F9F9F9] text-black [font-variant-numeric:normal]"
     >
       <section className="relative px-5 pt-8 sm:px-8 xl:h-[1237px] xl:overflow-hidden xl:p-0">
-        <ArkRideMark
-          id="waitlist-logo"
-          title="Ark Ride"
-          className="h-[33.016px] w-[106px] xl:absolute xl:top-[59px] xl:left-[79.14px] [html[data-intro]_&]:opacity-0"
-        />
+        {/* Runs the crosswalk loop the Figma prototype plays on this logo. */}
+        <WaitlistLogo className="h-[33.016px] w-[106px] xl:absolute xl:top-[59px] xl:left-[79.14px] [html[data-intro]_&]:opacity-0" />
 
         <div className="mt-10 flex flex-col items-center xl:absolute xl:top-0 xl:left-1/2 xl:-ml-[720px] xl:mt-0 xl:block xl:h-full xl:w-[1440px] [html[data-intro]_&]:transition-[opacity,translate] [html[data-intro]_&]:duration-300 [html[data-intro]_&]:ease-[cubic-bezier(0.42,0,0.58,1)] [html[data-intro=hold]_&]:translate-y-6 [html[data-intro=hold]_&]:opacity-0">
           <div className="flex w-full flex-col items-center text-center xl:absolute xl:top-[117px] xl:left-[289px] xl:z-10 xl:block xl:h-[321px] xl:w-[863px]">
