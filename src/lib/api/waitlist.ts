@@ -16,6 +16,10 @@ export interface WaitlistSignup {
 
 export interface JoinWaitlistInput {
   email: string;
+  /** Who is joining. The API defaults to `user` when this is absent. */
+  role?: "user" | "driver";
+  /** The feature they would most like to see. Optional, up to 500 characters. */
+  feature?: string;
   /** Where the sign-up came from, for the ops team. This page sends `web`. */
   source?: string;
 }

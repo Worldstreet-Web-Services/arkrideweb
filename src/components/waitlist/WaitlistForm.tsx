@@ -1,61 +1,101 @@
 "use client";
 
+import Image from "next/image";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 import { joinWaitlistAction, type WaitlistState } from "@/app/actions/waitlist";
+import { RoleDropdown } from "./RoleDropdown";
 
 const INITIAL: WaitlistState = { status: "idle" };
 
 /**
- * The email capture on the waitlist page.
+ * The form row on the waitlist page: role, email, a feature wish, submit.
  *
- * Measurements are the design's own: a 538 × 64 pill (`#FDFBFB` with a 1px
- * `#E1E1E1` inside stroke, radius 169) holding a 197 × 46 butter button
- * (radius 71) inset 10px from the right and 8px from the top, and a
- * placeholder whose left edge sits 25px in. The 2px left offset is also the
- * design's — the pill starts at x=38 where every other block starts at x=40.
+ * At xl it is the design's row exactly — an 863px horizontal auto-layout with
+ * 12px gaps holding the 149 dropdown, the 238 email field, the 257 feature
+ * field and the 183 button, all 40 tall. The fields are #FDFBFB with a 1px
+ * #E1E1E1 stroke that the file counts IN the layout, radius 10, padding
+ * 6/10/6/12, and a 16px glyph 9px before a Geist 400 10/26 placeholder in
+ * #A7A5A5. Because the stroke is inside the layout box, CSS border-box with a
+ * 1px border and that padding lands every child on the file's pixel.
  *
- * Below `md` there is no design frame, so the pill opens up into a stacked
- * field and full-width button; the desktop values are untouched.
+ * Below xl there is no frame: the four controls stack (two columns from md),
+ * 48 tall with 16px text so a phone does not zoom into the field on focus.
  *
- * The result line has no frame in the design either, so it is one line of
- * the form's own type, in the design's grey for success and the site's danger
- * token for failure, and it announces itself for screen readers.
+ * The status line has no frame either. It is one centred line of Geist under
+ * the row, in the design's grey on success and the site's danger token on
+ * failure, and it is announced to screen readers.
  */
-export function WaitlistForm() {
+export function WaitlistForm({ className = "" }: { className?: string }) {
   const [state, formAction] = useActionState(joinWaitlistAction, INITIAL);
   const joined = state.status === "joined";
 
+  const field =
+    "flex h-12 w-full items-center gap-[9px] rounded-[10px] border border-[#E1E1E1]! bg-[#FDFBFB] pr-[10px] pl-3 focus-within:border-[#c9c9c9]! xl:h-10";
+  const input =
+    "h-[26px] min-w-0 flex-1 bg-transparent font-(family-name:--font-geist) text-[16px] leading-[26px] font-normal text-black outline-none placeholder:text-[#A7A5A5] disabled:text-[#767676] xl:relative xl:top-[1.25px] xl:text-[10px]";
+
   return (
-    <div className="mt-8 w-full md:mt-[32px] md:w-[538px] md:-ml-0.5">
+    <div className={`relative ${className}`}>
       <form
         action={formAction}
         noValidate
-        className="relative flex flex-col gap-3 rounded-[32px] border border-[#E1E1E1] bg-[#FDFBFB] p-2 focus-within:border-[#c9c9c9] md:h-16 md:flex-row md:items-center md:rounded-[169px] md:p-0"
+        className="flex flex-col gap-3 md:grid md:grid-cols-2 xl:flex xl:flex-row xl:items-center"
       >
-        <label htmlFor="waitlist-email" className="sr-only">
-          Email address
+        <RoleDropdown name="role" disabled={joined} />
+
+        <label className={`${field} xl:w-[238px] xl:shrink-0`}>
+          <Image
+            src="/waitlist/icons/email.svg"
+            alt=""
+            width={16}
+            height={16}
+            unoptimized
+            className="h-4 w-4 shrink-0"
+          />
+          <span className="sr-only">Email address</span>
+          <input
+            name="email"
+            type="email"
+            inputMode="email"
+            autoComplete="email"
+            required
+            disabled={joined}
+            placeholder="Enter your email address"
+            aria-describedby="waitlist-status"
+            className={input}
+          />
         </label>
-        <input
-          id="waitlist-email"
-          name="email"
-          type="email"
-          inputMode="email"
-          autoComplete="email"
-          required
-          disabled={joined}
-          placeholder="Enter your email address"
-          aria-describedby="waitlist-status"
-          className="h-12 w-full min-w-0 rounded-[24px] bg-transparent px-4 font-(family-name:--font-geist) text-[14px] leading-[26px] font-medium text-black outline-none placeholder:text-[#767676] disabled:text-[#767676] md:h-full md:rounded-[169px] md:pl-6 md:pr-[215px]"
-        />
-        <SubmitPill disabled={joined} />
+
+        <label className={`${field} xl:w-[257px] xl:shrink-0`}>
+          <Image
+            src="/waitlist/icons/bulb.svg"
+            alt=""
+            width={16}
+            height={16}
+            unoptimized
+            className="h-4 w-4 shrink-0"
+          />
+          <span className="sr-only">What feature would you like to see? (optional)</span>
+          <input
+            name="feature"
+            type="text"
+            maxLength={500}
+            autoComplete="off"
+            disabled={joined}
+            placeholder="What Feature would you like to see?"
+            className={input}
+          />
+        </label>
+
+        <SubmitButton disabled={joined} />
       </form>
 
       <p
         id="waitlist-status"
         role="status"
         aria-live="polite"
-        className={`mt-3 min-h-[26px] font-(family-name:--font-geist) text-[14px] leading-[26px] font-medium ${
+        className={`mt-3 min-h-5 text-center font-(family-name:--font-geist) text-[13px] leading-5 font-medium xl:absolute xl:inset-x-0 xl:top-[52px] xl:mt-0 xl:text-[12px] ${
           state.status === "error" ? "text-danger" : "text-[#767676]"
         }`}
       >
@@ -66,19 +106,29 @@ export function WaitlistForm() {
 }
 
 /**
- * Its own component because `useFormStatus` reads the form ABOVE it — called
- * from `WaitlistForm` it would always report idle.
+ * Its own component because `useFormStatus` reads the form ABOVE it.
+ *
+ * The label carries a 1.2px nudge at xl: the browser sets Mona Sans 12/26 that
+ * much higher in the line box than the render does (measured). The fields'
+ * placeholders get 1.25px for the same reason, and their border colour is
+ * `!` because globals.css paints every border with an unlayered rule.
+ *
+ * The design's button: 183 × 40, #FEEE8F, radius 11, 7/22 padding, label in
+ * Mona Sans 600 12/26. (The three loose copies of this button beside the frame
+ * are set in Geist; the one inside the frame is Mona Sans, and that one wins.)
  */
-function SubmitPill({ disabled }: { disabled: boolean }) {
+function SubmitButton({ disabled }: { disabled: boolean }) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
       disabled={pending || disabled}
       aria-busy={pending}
-      className="h-[46px] w-full shrink-0 rounded-[71px] bg-secondary px-[21px] font-(family-name:--font-geist) text-[16px] leading-[26px] font-semibold text-black transition hover:bg-secondary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 md:absolute md:top-2 md:right-[10px] md:w-[197px]"
+      className="h-12 w-full rounded-[11px] bg-[#FEEE8F] px-[22px] font-(family-name:--font-mona-sans) text-[16px] leading-[26px] font-semibold text-black transition-colors hover:bg-secondary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary disabled:opacity-60 xl:h-10 xl:w-[183px] xl:shrink-0 xl:text-[12px]"
     >
-      {pending ? "Joining…" : "Join the Waitlist"}
+      <span className="relative xl:top-[1.2px]">
+        {pending ? "Joining…" : "Join the Waitlist"}
+      </span>
     </button>
   );
 }

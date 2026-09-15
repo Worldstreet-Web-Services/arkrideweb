@@ -5,92 +5,225 @@ import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
 /**
  * The pre-launch waitlist page — the site's root until launch.
  *
- * A 1440 × 1024 scene — the Lagos pickup illustration edge to edge — with a
- * 613 × 748 white panel hung from the top edge at x=107. Every measurement
- * below is the design's own; the comments give the one it came from so the
- * next person can check rather than trust.
+ * DESKTOP (xl, ≥1280px) is the design frame, value for value. The frame is a
+ * 1440 × 1458 canvas on #F9F9F9 and every element below is absolutely placed at
+ * the coordinates the file gives it, measured from the frame's top-left:
  *
- *   panel      613 × 748 at (107, 0), white, clips its content
- *   logo       122 × 38  at (40, 34)     — the exported mark, ArkRideMark
- *   tag        209 × 25  at (40, 124)    — 6/12 padding, radius 4, butter
- *   headline   430 wide  at (40, 183)    — Mona Sans 700, 48/55, black
- *   paragraph  430 wide  at (40, 374)    — Geist 400, 18/26, #767676
- *   car        42.43 × 17.47 at (222, 378), inline in the paragraph's
- *              first line, over the run of spaces the copy reserves for it
- *   form       538 × 64  at (38, 484)    — see WaitlistForm
- *   footer     528 wide  at (40, 689)    — Inter 400, 16/26.4, #334155
+ *   logo        (79.14, 59)     106 × 33   the website mark at 0.86885 scale
+ *   hero group  (289, 117)      863 wide   tag, headline, copy, form row
+ *   cards       (373, 593) (213, 740) (408, 887)   232 × 113.47, radius 17.35
+ *   phone       (576, 448)      864 × 937  under the footer, which covers it
+ *   footer      (0, 1237)       black, 221 tall (the frame clips it at 1458)
  *
- * The gaps are differences of those y values: 52 under the logo, 34 under the
- * tag, 26 under the headline, 32 above the form. The footer sits at a fixed
- * 33px from the panel's bottom edge, which is what `mt-auto` + `pb-[33px]`
- * reproduces.
+ * Figma's constraints decide what moves when the window is not 1440 wide. The
+ * hero and the phone are CENTER-constrained and the logo is LEFT, so those are
+ * honoured. The cards say LEFT too, but pinning them to the window edge while
+ * the phone they sit beside moves with the centre pulls the composition apart
+ * on a wide screen, so they travel with the phone instead. Past 1440 the
+ * phone pins to the right edge rather than the centre, because a centred image
+ * would end the hand in a hard vertical line mid-window. At exactly 1440 every
+ * one of these readings is the same page.
  *
- * Three site-wide rules are switched off here because the design does not
- * use them. globals.css styles every heading OUTSIDE a cascade layer, so those
- * declarations beat any utility and the overrides below have to be `!`:
- * a -0.02em tracking (the design's headline is tracked at 0, and the tight
- * value costs it 13px of width), a 1.15 line-height (55.2px at 48px, which
- * pushes everything beneath the headline down by a pixel), and balanced
- * wrapping (the design wraps naturally). The body's tabular numerals are off
- * too — the design's "2026" is proportional.
+ * Browser and Figma disagree about where a line box puts its glyphs for Mona
+ * Sans and Geist at small sizes, by 0.6-1.3px. Where that was measured against
+ * the render, the text carries a matching nudge and a note.
  *
- * There is no phone frame in the design, so below `md` the panel becomes the
- * page — full width, full height, the same order — and the headline steps
- * down to 36/42 so it wraps in three lines rather than five. Every desktop
- * value is scoped to `md:` and is not affected.
+ * Two site-wide rules from globals.css are overridden here because the design
+ * does not use them. Headings get -0.02em tracking, a 1.15 line-height and
+ * balanced wrapping from an UNLAYERED rule, which beats any utility — hence the
+ * `!` on those three properties. The body's tabular numerals are switched off.
+ *
+ * BELOW xl there is no frame in the file. The same content stacks in the same
+ * order in one column, with type sized for a phone; nothing above changes.
  */
+
+const CARDS = [
+  {
+    title: "Faster Pickups",
+    body: "Get matched with nearby drivers quickly, so you spend less time waiting and more time getting where you need to be",
+    icon: "/waitlist/icons/energy.svg",
+    // The energy glyph is a 13.73 frame; the people glyph a 15 frame. Each
+    // sits where the file puts it inside the 26.02 butter circle.
+    iconClass: "left-[5.78px] top-[5.78px] h-[13.73px] w-[13.73px]",
+    place: "xl:left-[373px] xl:top-[593px]",
+  },
+  {
+    title: "Safer Rides",
+    body: "Ride with confidence knowing Ark Ride is built around safer pickups, trusted drivers, and a smoother experience from start to finish",
+    icon: "/waitlist/icons/people-safe.svg",
+    iconClass: "left-[5.04px] top-[4.65px] h-[15px] w-[15px]",
+    place: "xl:left-[213px] xl:top-[740px]",
+  },
+  {
+    title: "A Brighter City",
+    body: "More than just getting from one place to another, Ark Ride connects people, drivers, and communities to keep the city moving.",
+    icon: "/waitlist/icons/people-safe.svg",
+    iconClass: "left-[5.04px] top-[4.65px] h-[15px] w-[15px]",
+    place: "xl:left-[408px] xl:top-[887px]",
+  },
+] as const;
+
+/**
+ * Set this to Ark Ride's X profile. The design draws the button but links nowhere.
+ *
+ * The ring is the file's 1.5px INSIDE stroke drawn as an inset shadow, not a
+ * border: Chrome floors border widths to whole device pixels, so a 1.5px border
+ * renders as 1px on a standard display, while a shadow spread does not snap.
+ */
+const X_URL = process.env.NEXT_PUBLIC_ARKRIDE_X_URL;
+
 export default function WaitlistPage() {
+  const xBadge = (
+    <Image
+      src="/waitlist/icons/x.svg"
+      alt=""
+      width={20}
+      height={20}
+      unoptimized
+      className="h-5 w-5"
+    />
+  );
+  const xButtonClass =
+    "mt-6 flex h-[34px] w-[34px] items-center justify-center rounded-[17px] shadow-[inset_0_0_0_1.5px_#fff] xl:absolute xl:left-[1326px] xl:top-[103px] xl:mt-0";
+
   return (
     <main
       id="main"
-      className="relative min-h-dvh w-full overflow-hidden bg-black"
+      className="flex min-h-dvh flex-col overflow-x-hidden bg-[#F9F9F9] text-black [font-variant-numeric:normal]"
     >
-      <Image
-        src="/waitlist/lagos-pickup.png"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="object-cover"
-      />
+      <section className="relative px-5 pt-8 sm:px-8 xl:h-[1237px] xl:overflow-hidden xl:p-0">
+        <ArkRideMark
+          title="Ark Ride"
+          className="h-[33.016px] w-[106px] xl:absolute xl:top-[59px] xl:left-[79.14px]"
+        />
 
-      <section
-        aria-labelledby="waitlist-heading"
-        className="relative flex min-h-dvh w-full flex-col bg-white px-5 pt-8 pb-8 text-black [font-variant-numeric:normal] md:absolute md:top-0 md:left-[107px] md:h-[748px] md:min-h-0 md:w-[613px] md:overflow-hidden md:px-10 md:pt-[34px] md:pb-[33px]"
-      >
-        <ArkRideMark className="h-[38px] w-[122px] md:-ml-px" title="Ark Ride" />
+        <div className="mt-10 flex flex-col items-center xl:absolute xl:top-0 xl:left-1/2 xl:-ml-[720px] xl:mt-0 xl:block xl:h-full xl:w-[1440px]">
+          <div className="flex w-full flex-col items-center text-center xl:absolute xl:top-[117px] xl:left-[289px] xl:z-10 xl:block xl:h-[321px] xl:w-[863px]">
+            <p className="inline-flex h-[25px] items-center rounded-[4px] bg-[#FEEE8F] px-3 font-(family-name:--font-inter) text-[12px] leading-[13.2px] font-semibold text-[#020617] uppercase xl:absolute xl:top-0 xl:left-[331px]">
+              Launching SEPTEMBER, 2026
+            </p>
 
-        <p className="mt-10 inline-flex h-[25px] w-fit items-center rounded-[4px] bg-secondary px-3 py-1.5 font-(family-name:--font-inter) text-[12px] leading-[13.2px] font-semibold text-[#020617] uppercase md:mt-[52px]">
-          Launching SEPTEMBER, 2026
-        </p>
+            <h1 className="mt-6 max-w-[765px] font-(family-name:--font-mona-sans) text-[32px] leading-[38px]! font-bold tracking-normal! text-wrap! text-black sm:text-[40px] sm:leading-[46px]! xl:absolute xl:top-[61px] xl:left-[53px] xl:mt-0 xl:w-[765px] xl:max-w-none xl:text-[48px] xl:leading-[55px]!">
+              The city moves fast, Your ride should too.
+            </h1>
 
-        <h1
-          id="waitlist-heading"
-          className="mt-6 w-full font-(family-name:--font-mona-sans) text-[36px] leading-[42px]! font-bold tracking-normal! text-wrap! text-black md:mt-[34px] md:w-[430px] md:text-[48px] md:leading-[55px]!"
-        >
-          The city moves fast, Your ride should too.
-        </h1>
+            <p className="mt-5 max-w-[538px] font-(family-name:--font-geist) text-[16px] leading-[24px] font-normal text-[#767676] sm:text-[18px] sm:leading-[26px] xl:absolute xl:top-[207px] xl:left-[166.5px] xl:mt-0 xl:w-[538px]">
+              {/*
+                The design breaks after "and". In the browser the first line
+                with "a" measures 536px, which fits the 538px box, so the
+                break is explicit at xl rather than left to the wrap.
+              */}
+              Join the first wave of Ark Ride safer pickups, clearer prices, and
+              <br className="hidden xl:inline" /> a ride that keeps pace with
+              your day.
+            </p>
 
-        <p className="mt-5 w-full font-(family-name:--font-geist) text-[18px] leading-[26px] font-normal text-[#767676] md:mt-[26px] md:h-[78px] md:w-[430px]">
-          Join the first wave of{" "}
-          <Image
-            src="/waitlist/car.png"
-            alt=""
-            width={510}
-            height={210}
-            sizes="43px"
-            className="ml-[4px] -mr-px inline-block h-[17.47px] w-[42.43px] align-middle"
-          />{" "}
-          Ark Ride safer pickups, clearer prices, and a ride that keeps pace
-          with your day.
-        </p>
+            <WaitlistForm className="mt-8 w-full max-w-[720px] xl:absolute xl:top-[281px] xl:left-0 xl:mt-0 xl:w-[863px] xl:max-w-none" />
+          </div>
+        </div>
 
-        <WaitlistForm />
+        {/*
+          Cards and phone share their own 1440 canvas. It is centred like the
+          hero up to 1440; past that it pins to the right edge instead, so the
+          hand keeps running off the side of the window the way it runs off
+          the frame, rather than ending in a hard vertical edge mid-screen. The
+          cards move with it because they are drawn against the phone.
 
-        <p className="mt-auto w-full pt-10 font-(family-name:--font-inter) text-[16px] leading-[26.4px] font-normal text-[#334155] md:h-[26px] md:w-[528px] md:pt-0">
-          @ 2026 - All rights reserved.
-        </p>
+          One `left: max(50% - 720px, 100% - 1440px)` does both: it is 0 at
+          1440, the centring term below it, and the right-pinning term above
+          it. (Two breakpoint classes cannot: Tailwind will not order an
+          arbitrary px breakpoint against the rem-based xl one.)
+        */}
+        <div className="flex flex-col items-center xl:absolute xl:top-0 xl:left-[max(50%_-_720px,100%_-_1440px)] xl:block xl:h-full xl:w-[1440px]">
+          <ul className="mt-12 grid w-full max-w-[720px] gap-3 sm:grid-cols-3 xl:contents">
+            {CARDS.map((card) => (
+              <li
+                key={card.title}
+                className={`relative rounded-[17.35px] bg-white py-[22px] pr-[56px] pl-[22.4px] text-left xl:absolute xl:z-10 xl:h-[113.47px] xl:w-[232px] xl:overflow-hidden xl:p-0 ${card.place}`}
+              >
+                <h2 className="font-(family-name:--font-mona-sans) text-[15px] leading-[18px]! font-semibold tracking-normal! text-wrap! text-black xl:absolute xl:top-[24.72px] xl:left-[22.4px] xl:text-[11.5639px] xl:leading-[12.2866px]! xl:whitespace-nowrap">
+                  {card.title}
+                </h2>
+                <p className="mt-2 font-(family-name:--font-geist) text-[13px] leading-[18px] font-normal text-[#767676] xl:absolute xl:top-[47.7px] xl:left-[22.4px] xl:mt-0 xl:w-[152.5px] xl:text-[8.6729px] xl:leading-[12.2866px]">
+                  {card.body}
+                </p>
+                <span className="absolute top-[18px] right-[18px] h-[26.02px] w-[26.02px] rounded-full bg-[#FEEE8F] xl:top-[17.35px] xl:right-auto xl:left-[179.96px]">
+                  <Image
+                    src={card.icon}
+                    alt=""
+                    width={15}
+                    height={15}
+                    unoptimized
+                    className={`absolute ${card.iconClass}`}
+                  />
+                </span>
+              </li>
+            ))}
+          </ul>
+
+          <div className="relative mt-10 aspect-[864/789] w-full max-w-[560px] overflow-hidden xl:absolute xl:top-[448px] xl:left-[576px] xl:mt-0 xl:aspect-auto xl:h-[937px] xl:w-[864px] xl:max-w-none xl:overflow-visible">
+            <Image
+              src="/waitlist/phone-hand.jpg"
+              alt="The Ark Ride app open on a phone, offering to book a ride or become a driver"
+              fill
+              priority
+              unoptimized
+              sizes="(min-width: 1280px) 864px, 100vw"
+              className="object-cover object-top"
+            />
+          </div>
+        </div>
       </section>
+
+      <footer className="relative bg-black text-white xl:h-[221px] xl:overflow-hidden">
+        <div className="relative z-10 flex flex-col items-center px-5 pt-10 pb-8 text-center xl:left-1/2 xl:-ml-[720px] xl:block xl:h-full xl:w-[1440px] xl:p-0">
+          <div className="xl:absolute xl:top-[27px] xl:left-[474px] xl:w-[491px]">
+            <h2 className="font-(family-name:--font-mona-sans) text-[24px] leading-[32px]! font-semibold tracking-normal! text-wrap! text-white xl:text-[28px] xl:leading-[55px]!">
+              Your next ride starts here.
+            </h2>
+            <p className="relative mt-2 font-(family-name:--font-geist) text-[15px] leading-[24.75px] font-normal xl:top-[1px] xl:mt-0">
+              Add your name and we’ll be in touch.
+            </p>
+          </div>
+
+          {X_URL ? (
+            <a
+              href={X_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Ark Ride on X"
+              className={`${xButtonClass} transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+            >
+              {xBadge}
+            </a>
+          ) : (
+            <span aria-hidden className={xButtonClass}>
+              {xBadge}
+            </span>
+          )}
+        </div>
+
+        {/*
+          The strip is a 52px band of the illustration: the file shows image
+          rows 521.7–577.2 of 1024 at full image width. The asset is rows
+          512–740, so the band starts 9.716 image px down — 0.63255% of the
+          strip's WIDTH at this scale, which is exactly what a percentage
+          margin resolves against. Below xl the band simply covers.
+        */}
+        <div className="relative h-[52px] overflow-hidden xl:absolute xl:inset-x-0 xl:top-[171px]">
+          <Image
+            src="/waitlist/footer-strip.webp"
+            alt=""
+            width={1536}
+            height={228}
+            unoptimized
+            className="absolute inset-0 h-full w-full max-w-none object-cover xl:static xl:mt-[-0.63255%] xl:ml-[0.02698%] xl:block xl:h-auto xl:w-full xl:object-fill"
+          />
+          <p className="absolute top-[13px] left-5 font-(family-name:--font-geist) text-[16px] leading-[26.4px] font-medium whitespace-nowrap text-white xl:left-[calc(50%-621px)]">
+            @ 2026 - All rights reserved.
+          </p>
+        </div>
+      </footer>
     </main>
   );
 }

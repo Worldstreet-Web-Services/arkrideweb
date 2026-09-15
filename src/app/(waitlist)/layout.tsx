@@ -6,8 +6,8 @@ import localFont from "next/font/local";
  * route group owns `/`, and the marketing site sits at `/home` until launch.
  *
  * It is set in three faces the rest of the site does not use:
- * Mona Sans for the headline, Geist for the body and the form, Inter for the
- * tag and the footer line. They are loaded HERE rather than in the root layout
+ * Mona Sans for headings, cards and the form's labels, Geist for body copy,
+ * placeholders and the footer line, Inter for the launch tag. They are loaded HERE rather than in the root layout
  * so that only this route pays for them — every other page keeps shipping the
  * one brand face and nothing else.
  *

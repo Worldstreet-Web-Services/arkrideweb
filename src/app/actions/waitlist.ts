@@ -27,8 +27,16 @@ export async function joinWaitlistAction(
     return { status: "error", message: "Enter a valid email address." };
   }
 
+  // Anything other than an explicit "driver" is a rider — the dropdown only
+  // offers the two, and a tampered value should not become a third.
+  const role = formData.get("role") === "driver" ? "driver" : "user";
+  const feature =
+    String(formData.get("feature") ?? "")
+      .trim()
+      .slice(0, 500) || undefined;
+
   try {
-    await joinWaitlist({ email, source: "web" });
+    await joinWaitlist({ email, role, feature, source: "web" });
     return {
       status: "joined",
       message: "You're on the list. We'll email you when Ark Ride launches.",
@@ -44,7 +52,10 @@ export async function joinWaitlistAction(
       if (error.code === "VALIDATION_FAILED") {
         return {
           status: "error",
-          message: error.toFieldMap().email ?? "Enter a valid email address.",
+          message:
+            error.toFieldMap().email ??
+            error.toFieldMap().feature ??
+            "Please check the form and try again.",
         };
       }
       return { status: "error", message: error.message };
