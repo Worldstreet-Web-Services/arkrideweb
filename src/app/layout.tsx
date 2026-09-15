@@ -102,7 +102,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={brandSans.variable}>
+    <html
+      lang="en"
+      className={brandSans.variable}
+      // The waitlist intro sets `data-intro` on <html> before hydration, so
+      // the server's markup and the live element legitimately differ there.
+      suppressHydrationWarning
+    >
       <body className="min-h-screen flex flex-col antialiased bg-bg text-text">
         {/*
           Skip link. There was none anywhere, so a keyboard user re-tabbed the

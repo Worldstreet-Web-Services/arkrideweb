@@ -535,3 +535,15 @@ h1, h2, h3, h4, h5, h6 {
   0%   { opacity: 0; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* Hold the page still behind an open modal dialog. `showModal()` makes the
+   page inert but does not stop it scrolling under a wheel or a swipe. */
+html:has(dialog[open]:modal) {
+  overflow: hidden;
+}
+
+/* The waitlist logo intro covers the page for its first two seconds; the page
+   must not scroll underneath it. See components/waitlist/LogoIntro.tsx. */
+html[data-intro] {
+  overflow: hidden;
+}

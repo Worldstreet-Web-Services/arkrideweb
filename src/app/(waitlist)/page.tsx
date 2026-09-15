@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { ArkRideMark } from "@/components/brand/ArkRideMark";
-import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
+import { WaitlistDialog } from "@/components/waitlist/WaitlistDialog";
+import { LogoIntro } from "@/components/waitlist/LogoIntro";
 
 /**
  * The pre-launch waitlist page — the site's root until launch.
@@ -11,8 +12,9 @@ import { WaitlistForm } from "@/components/waitlist/WaitlistForm";
  *
  *   logo        (79.14, 59)     106 × 33   the website mark at 0.86885 scale
  *   hero group  (289, 117)      863 wide   tag, headline, copy, form row
- *   form row    1113 wide, centred on the hero — the design's 863 plus the
- *               backend-required phone field (238) and its 12px gap
+ *   join button 183 × 40 at (340, 281) in the hero, the design's own
+ *               button, centred where the design's form row sat. The form
+ *               itself opens in a dialog: see WaitlistDialog
  *   cards       (373, 593) (213, 740) (408, 887)   232 × 113.47, radius 17.35
  *   phone       (576, 448)      864 × 937  under the footer, which covers it
  *   footer      (0, 1237)       black, 221 tall (the frame clips it at 1458)
@@ -95,11 +97,12 @@ export default function WaitlistPage() {
     >
       <section className="relative px-5 pt-8 sm:px-8 xl:h-[1237px] xl:overflow-hidden xl:p-0">
         <ArkRideMark
+          id="waitlist-logo"
           title="Ark Ride"
-          className="h-[33.016px] w-[106px] xl:absolute xl:top-[59px] xl:left-[79.14px]"
+          className="h-[33.016px] w-[106px] xl:absolute xl:top-[59px] xl:left-[79.14px] [html[data-intro]_&]:opacity-0"
         />
 
-        <div className="mt-10 flex flex-col items-center xl:absolute xl:top-0 xl:left-1/2 xl:-ml-[720px] xl:mt-0 xl:block xl:h-full xl:w-[1440px]">
+        <div className="mt-10 flex flex-col items-center xl:absolute xl:top-0 xl:left-1/2 xl:-ml-[720px] xl:mt-0 xl:block xl:h-full xl:w-[1440px] [html[data-intro]_&]:transition-[opacity,translate] [html[data-intro]_&]:duration-300 [html[data-intro]_&]:ease-[cubic-bezier(0.42,0,0.58,1)] [html[data-intro=hold]_&]:translate-y-6 [html[data-intro=hold]_&]:opacity-0">
           <div className="flex w-full flex-col items-center text-center xl:absolute xl:top-[117px] xl:left-[289px] xl:z-10 xl:block xl:h-[321px] xl:w-[863px]">
             <p className="inline-flex h-[25px] items-center rounded-[4px] bg-[#FEEE8F] px-3 font-(family-name:--font-inter) text-[12px] leading-[13.2px] font-semibold text-[#020617] uppercase xl:absolute xl:top-0 xl:left-[331px]">
               Launching SEPTEMBER, 2026
@@ -120,7 +123,7 @@ export default function WaitlistPage() {
               your day.
             </p>
 
-            <WaitlistForm className="mt-8 w-full max-w-[720px] xl:absolute xl:top-[281px] xl:left-[-125px] xl:mt-0 xl:w-[1113px] xl:max-w-none" />
+            <WaitlistDialog className="mt-8 xl:absolute xl:top-[281px] xl:left-[340px] xl:mt-0" />
           </div>
         </div>
 
@@ -136,7 +139,7 @@ export default function WaitlistPage() {
           it. (Two breakpoint classes cannot: Tailwind will not order an
           arbitrary px breakpoint against the rem-based xl one.)
         */}
-        <div className="flex flex-col items-center xl:absolute xl:top-0 xl:left-[max(50%_-_720px,100%_-_1440px)] xl:block xl:h-full xl:w-[1440px]">
+        <div className="flex flex-col items-center xl:absolute xl:top-0 xl:left-[max(50%_-_720px,100%_-_1440px)] xl:block xl:h-full xl:w-[1440px] [html[data-intro]_&]:transition-[opacity,translate] [html[data-intro]_&]:duration-300 [html[data-intro]_&]:ease-[cubic-bezier(0.42,0,0.58,1)] [html[data-intro=hold]_&]:translate-y-6 [html[data-intro=hold]_&]:opacity-0">
           <ul className="mt-12 grid w-full max-w-[720px] gap-3 sm:grid-cols-3 xl:contents">
             {CARDS.map((card) => (
               <li
@@ -177,7 +180,7 @@ export default function WaitlistPage() {
         </div>
       </section>
 
-      <footer className="relative bg-black text-white xl:h-[221px] xl:overflow-hidden">
+      <footer className="relative bg-black text-white xl:h-[221px] xl:overflow-hidden [html[data-intro]_&]:transition-[opacity,translate] [html[data-intro]_&]:duration-300 [html[data-intro]_&]:ease-[cubic-bezier(0.42,0,0.58,1)] [html[data-intro=hold]_&]:translate-y-6 [html[data-intro=hold]_&]:opacity-0">
         <div className="relative z-10 flex flex-col items-center px-5 pt-10 pb-8 text-center xl:left-1/2 xl:-ml-[720px] xl:block xl:h-full xl:w-[1440px] xl:p-0">
           <div className="xl:absolute xl:top-[27px] xl:left-[474px] xl:w-[491px]">
             <h2 className="font-(family-name:--font-mona-sans) text-[24px] leading-[32px]! font-semibold tracking-normal! text-wrap! text-white xl:text-[28px] xl:leading-[55px]!">
@@ -226,6 +229,7 @@ export default function WaitlistPage() {
           </p>
         </div>
       </footer>
+      <LogoIntro targetId="waitlist-logo" />
     </main>
   );
 }

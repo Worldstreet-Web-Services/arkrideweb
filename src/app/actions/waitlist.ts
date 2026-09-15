@@ -1,12 +1,31 @@
 "use server";
 
-import { joinWaitlist } from "@/lib/api/waitlist";
+import { joinWaitlist, type WaitlistUserType } from "@/lib/api/waitlist";
 import { ApiError } from "@/lib/api/types";
+
+export type WaitlistField = "userType" | "email" | "phoneNumber" | "feature";
+
+export interface WaitlistValues {
+  userType: WaitlistUserType;
+  email: string;
+  phoneNumber: string;
+  feature: string;
+}
 
 export interface WaitlistState {
   status: "idle" | "joined" | "error";
-  /** Read out below the form. Empty while idle. */
+  /** The API said this address was already on the list. */
+  alreadyJoined?: boolean;
+  /** A failure that belongs to no single field: rate limit, network, server. */
   message?: string;
+  /** Shown under the field each one belongs to. */
+  fieldErrors?: Partial<Record<WaitlistField, string>>;
+  /**
+   * What was submitted. React resets an action form after it runs, so a
+   * failed attempt hands these back as default values rather than making
+   * the person type everything again.
+   */
+  values?: WaitlistValues;
 }
 
 /**
@@ -15,70 +34,93 @@ export interface WaitlistState {
  */
 const LOOKS_LIKE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-const JOINED = "You're on the list. We'll email you when Ark Ride launches.";
+const API_FIELDS: readonly WaitlistField[] = [
+  "userType",
+  "email",
+  "phoneNumber",
+  "feature",
+];
 
 export async function joinWaitlistAction(
   _prev: WaitlistState,
   formData: FormData,
 ): Promise<WaitlistState> {
+  const rawType = formData.get("userType");
+  const userType: WaitlistUserType | null =
+    rawType === "driver" ? "driver" : rawType === "user" ? "user" : null;
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
-
-  if (!LOOKS_LIKE_EMAIL.test(email)) {
-    return { status: "error", message: "Enter a valid email address." };
-  }
-
   const phoneNumber = String(formData.get("phoneNumber") ?? "").trim();
+  const feature = String(formData.get("feature") ?? "")
+    .trim()
+    .slice(0, 500);
+
+  const values: WaitlistValues = {
+    userType: userType ?? "user",
+    email,
+    phoneNumber,
+    feature,
+  };
+
+  const fieldErrors: WaitlistState["fieldErrors"] = {};
+  if (!userType) {
+    fieldErrors.userType = "Choose whether you want to ride or drive.";
+  }
+  if (!LOOKS_LIKE_EMAIL.test(email)) {
+    fieldErrors.email = "Enter a valid email address.";
+  }
   // The API only insists on a non-empty string. Seven digits is the shortest
   // real subscriber number anywhere, so fewer is a typo worth catching here.
   if ((phoneNumber.match(/\d/g) ?? []).length < 7) {
-    return { status: "error", message: "Enter a valid phone number." };
+    fieldErrors.phoneNumber = "Enter a valid phone number.";
+  }
+  if (Object.keys(fieldErrors).length > 0) {
+    return { status: "error", fieldErrors, values };
   }
 
-  // Anything other than an explicit "driver" is a rider: the dropdown only
-  // offers the two, and a tampered value should not become a third.
-  const userType = formData.get("userType") === "driver" ? "driver" : "user";
-  const feature =
-    String(formData.get("feature") ?? "")
-      .trim()
-      .slice(0, 500) || undefined;
-
   try {
-    await joinWaitlist({ email, phoneNumber, userType, feature });
-    return { status: "joined", message: JOINED };
+    await joinWaitlist({
+      email,
+      phoneNumber,
+      userType: values.userType,
+      feature: feature || undefined,
+    });
+    return { status: "joined" };
   } catch (error) {
     if (error instanceof ApiError) {
       // 409: the address is already on the list. For the person at the
-      // keyboard that is the outcome they came for, so it reads as success.
+      // keyboard that is the outcome they came for.
       if (error.code === "CONFLICT") {
-        return {
-          status: "joined",
-          message: "You're already on the list. We'll email you when Ark Ride launches.",
-        };
+        return { status: "joined", alreadyJoined: true };
       }
       if (error.isRateLimited) {
         return {
           status: "error",
           message: "Too many attempts. Wait a minute and try again.",
+          values,
         };
       }
       if (error.code === "VALIDATION_FAILED") {
-        const fields = error.toFieldMap();
-        return {
-          status: "error",
-          message:
-            fields.email ??
-            fields.feature ??
-            fields.phoneNumber ??
-            "Please check the form and try again.",
-        };
+        const map = error.toFieldMap();
+        const mapped: WaitlistState["fieldErrors"] = {};
+        for (const field of API_FIELDS) {
+          if (map[field]) mapped[field] = map[field];
+        }
+        return Object.keys(mapped).length > 0
+          ? { status: "error", fieldErrors: mapped, values }
+          : {
+              status: "error",
+              message: "Please check your details and try again.",
+              values,
+            };
       }
-      return { status: "error", message: error.message };
+      return { status: "error", message: error.message, values };
     }
     return {
       status: "error",
       message: "Something went wrong. Please try again.",
+      values,
     };
   }
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { INTRO_BOOT_SCRIPT } from "@/components/waitlist/intro";
 
 /**
  * The waitlist page is the site's root while Ark Ride is pre-launch — this
@@ -50,6 +51,12 @@ export default function WaitlistLayout({
 }) {
   return (
     <div className={`${monaSans.variable} ${geist.variable} ${inter.variable} contents`}>
+      {/*
+        Decides, before the page paints, whether the logo intro plays. It has
+        to run during HTML parsing: deciding after hydration would flash the
+        page and then cover it.
+      */}
+      <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
       {children}
     </div>
   );
