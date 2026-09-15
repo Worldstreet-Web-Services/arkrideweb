@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { INTRO_BOOT_SCRIPT } from "@/components/waitlist/intro";
 
 /**
  * The waitlist page is the site's root while Ark Ride is pre-launch — this
  * route group owns `/`, and the marketing site sits at `/home` until launch.
  *
  * It is set in three faces the rest of the site does not use:
- * Mona Sans for the headline, Geist for the body and the form, Inter for the
- * tag and the footer line. They are loaded HERE rather than in the root layout
+ * Mona Sans for headings, cards and the form's labels, Geist for body copy,
+ * placeholders and the footer line, Inter for the launch tag. They are loaded HERE rather than in the root layout
  * so that only this route pays for them — every other page keeps shipping the
  * one brand face and nothing else.
  *
@@ -50,6 +51,12 @@ export default function WaitlistLayout({
 }) {
   return (
     <div className={`${monaSans.variable} ${geist.variable} ${inter.variable} contents`}>
+      {/*
+        Decides, before the page paints, whether the logo intro plays. It has
+        to run during HTML parsing: deciding after hydration would flash the
+        page and then cover it.
+      */}
+      <script dangerouslySetInnerHTML={{ __html: INTRO_BOOT_SCRIPT }} />
       {children}
     </div>
   );

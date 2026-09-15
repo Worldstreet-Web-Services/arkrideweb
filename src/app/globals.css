@@ -535,3 +535,25 @@ h1, h2, h3, h4, h5, h6 {
   0%   { opacity: 0; transform: scale(0.9); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* Hold the page still behind an open modal dialog. `showModal()` makes the
+   page inert but does not stop it scrolling under a wheel or a swipe. */
+html:has(dialog[open]:modal) {
+  overflow: hidden;
+}
+
+/* The waitlist logo intro covers the page for its first two seconds; the page
+   must not scroll underneath it. See components/waitlist/LogoIntro.tsx. */
+html[data-intro] {
+  overflow: hidden;
+}
+
+/* The waitlist page locks scrolling twice: under the logo intro and under the
+   join dialog. With a classic scrollbar (Windows, or macOS set to always show
+   scroll bars) removing it widens the page by its width and every centred
+   element jumps sideways, then jumps back on unlock. Reserving the gutter
+   keeps the page width the same locked or not. Overlay scrollbars reserve
+   nothing, so phones and default macOS are unaffected. */
+html:has(main[data-page="waitlist"]) {
+  scrollbar-gutter: stable;
+}
