@@ -25,6 +25,7 @@ const ROLES = [
 
 const FIELD_ORDER: readonly WaitlistField[] = [
   "userType",
+  "name",
   "email",
   "phoneNumber",
   "feature",
@@ -223,7 +224,7 @@ function WaitlistPanel({
             {ROLES.map((role) => (
               <label
                 key={role.value}
-                className="group relative flex cursor-pointer flex-col gap-1 rounded-[12px] border border-[#E1E1E1]! bg-[#FDFBFB] p-3.5 transition-colors has-checked:border-black! has-checked:bg-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-primary"
+                className="group relative flex cursor-pointer flex-col gap-1 rounded-[12px] border border-[#E1E1E1]! bg-[#FDFBFB] p-3.5 transition-colors has-checked:border-black! has-checked:bg-white has-focus-visible:shadow-[0_0_0_4px_rgba(243,186,63,0.28)]"
               >
                 <input
                   type="radio"
@@ -249,6 +250,28 @@ function WaitlistPanel({
           </div>
           <FieldError id={`${id("userType")}-error`} message={errors.userType} />
         </fieldset>
+
+        <Field
+          id={id("name")}
+          label="Full name"
+          optional
+          icon="/waitlist/icons/user.svg"
+          error={errors.name}
+        >
+          <input
+            id={id("name")}
+            name="name"
+            type="text"
+            autoComplete="name"
+            autoCapitalize="words"
+            maxLength={100}
+            defaultValue={values?.name}
+            placeholder="Enter your full name"
+            aria-invalid={errors.name ? true : undefined}
+            aria-describedby={errors.name ? `${id("name")}-error` : undefined}
+            className={INPUT}
+          />
+        </Field>
 
         <Field
           id={id("email")}
@@ -342,7 +365,7 @@ function WaitlistPanel({
  * border already turns black on focus, so a second ring inside it is noise.
  */
 const INPUT =
-  "h-full min-w-0 flex-1 bg-transparent font-(family-name:--font-geist) text-[16px] leading-[24px] text-black outline-none! placeholder:text-[#A7A5A5] sm:text-[15px]";
+  "h-full min-w-0 flex-1 bg-transparent font-(family-name:--font-geist) text-[16px] leading-[24px] text-black caret-black outline-none! placeholder:text-[#A7A5A5] autofill:shadow-[inset_0_0_0_1000px_#FDFBFB] autofill:[-webkit-text-fill-color:#000] group-focus-within/field:autofill:shadow-[inset_0_0_0_1000px_#FFFFFF] sm:text-[15px]";
 
 function Field({
   id,
@@ -372,9 +395,18 @@ function Field({
           </span>
         ) : null}
       </label>
+      {/*
+        FOCUS: the border takes the brand amber and a soft 4px amber halo
+        grows around the field, which also turns white so the text being typed
+        reads clearly. An errored field does the same in red. Both are box
+        shadows and a border colour, so nothing shifts by a pixel. Hover only
+        darkens an unfocused field, so a resting pointer cannot mask focus.
+      */}
       <div
-        className={`mt-2 flex h-12 items-center gap-[9px] rounded-[10px] border bg-[#FDFBFB] px-3 transition-colors focus-within:border-black! ${
-          error ? "border-danger!" : "border-[#E1E1E1]!"
+        className={`group/field mt-2 flex h-12 items-center gap-[9px] rounded-[10px] border px-3 transition-[border-color,box-shadow,background-color] duration-150 ease-out motion-reduce:transition-none ${
+          error
+            ? "border-danger! bg-[#FFFBFB] focus-within:shadow-[0_0_0_4px_rgba(220,38,38,0.14)]"
+            : "border-[#E1E1E1]! bg-[#FDFBFB] hover:not-focus-within:border-[#CFCFCF]! focus-within:border-[#F3BA3F]! focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(243,186,63,0.22)]"
         }`}
       >
         <Image

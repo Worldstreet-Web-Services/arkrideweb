@@ -3,10 +3,16 @@
 import { joinWaitlist, type WaitlistUserType } from "@/lib/api/waitlist";
 import { ApiError } from "@/lib/api/types";
 
-export type WaitlistField = "userType" | "email" | "phoneNumber" | "feature";
+export type WaitlistField =
+  | "userType"
+  | "name"
+  | "email"
+  | "phoneNumber"
+  | "feature";
 
 export interface WaitlistValues {
   userType: WaitlistUserType;
+  name: string;
   email: string;
   phoneNumber: string;
   feature: string;
@@ -36,6 +42,7 @@ const LOOKS_LIKE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const API_FIELDS: readonly WaitlistField[] = [
   "userType",
+  "name",
   "email",
   "phoneNumber",
   "feature",
@@ -48,6 +55,10 @@ export async function joinWaitlistAction(
   const rawType = formData.get("userType");
   const userType: WaitlistUserType | null =
     rawType === "driver" ? "driver" : rawType === "user" ? "user" : null;
+  // Optional on the API, capped at 100 characters there too.
+  const name = String(formData.get("name") ?? "")
+    .trim()
+    .slice(0, 100);
   const email = String(formData.get("email") ?? "")
     .trim()
     .toLowerCase();
@@ -58,6 +69,7 @@ export async function joinWaitlistAction(
 
   const values: WaitlistValues = {
     userType: userType ?? "user",
+    name,
     email,
     phoneNumber,
     feature,
@@ -81,6 +93,7 @@ export async function joinWaitlistAction(
 
   try {
     await joinWaitlist({
+      name: name || undefined,
       email,
       phoneNumber,
       userType: values.userType,
