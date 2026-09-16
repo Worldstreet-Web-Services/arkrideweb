@@ -78,10 +78,11 @@ const CARDS = [
 
 /**
  * Set this to Ark Ride's X profile. The design draws the button but links nowhere.
- * The WorldStreet badge sits beside it and always links to worldstreet.com.
+ * The WorldStreet and MarketSquare badges sit beside it and always link out.
  */
 const X_URL = "https://x.com/_Arkride_";
-const WORLDSTREET_URL = "https://social.worldstreetgold.com/";
+const WORLDSTREET_URL = "https://social.worldstreetgold.com/profile/ArkRide";
+const MARKET_SQUARE_URL = "https://square.tsionark.com/u/arkride?s=cp";
 
 export default function WaitlistPage() {
   const badgeClass = "flex h-[34px] w-[34px] items-center justify-center";
@@ -195,6 +196,23 @@ export default function WaitlistPage() {
             >
               <Image
                 src="/worldspace-mark-light.png"
+                alt=""
+                width={20}
+                height={20}
+                unoptimized
+                className="h-5 w-5"
+              />
+            </Link>
+
+            <Link
+              href={MARKET_SQUARE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="MarketSquare"
+              className={`${badgeClass} transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
+            >
+              <Image
+                src="/marketSquare-logo.svg"
                 alt=""
                 width={20}
                 height={20}
