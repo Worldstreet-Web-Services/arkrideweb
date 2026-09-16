@@ -16,7 +16,12 @@ import Link from "next/link";
  *   join button 183 × 40 at (340, 281) in the hero, the design's own
  *               button, centred where the design's form row sat. The form
  *               itself opens in a dialog: see WaitlistDialog
- *   cards       (373, 593) (213, 740) (408, 887)   232 × 113.47, radius 17.35
+ *   cards       (373, 593) (213, 787) (408, 981)   300 × 170, radius 17.35 —
+ *               enlarged from the file's 232 × 113.47 (11.56px title / 8.67px
+ *               body) because that card type is too small to read at native
+ *               desktop size; text and box were both scaled up, and the tops
+ *               respaced from the file's 147px to 194px so the taller cards
+ *               don't overlap
  *   phone       (576, 448)      864 × 937  under the footer, which covers it
  *   footer      (0, 1237)       black, 221 tall (the frame clips it at 1458)
  *
@@ -51,20 +56,23 @@ const CARDS = [
     // sits where the file puts it inside the 26.02 butter circle.
     iconClass: "left-[5.78px] top-[5.78px] h-[13.73px] w-[13.73px]",
     place: "xl:left-[373px] xl:top-[593px]",
+    // 194px between tops (170 card height + 24 gap) keeps the enlarged
+    // cards clear of each other — the file's 147px spacing was sized for
+    // the original 113.47px-tall card.
   },
   {
     title: "Safer Rides",
     body: "Ride with confidence knowing Ark Ride is built around safer pickups, trusted drivers, and a smoother experience from start to finish",
     icon: "/waitlist/icons/people-safe.svg",
     iconClass: "left-[5.04px] top-[4.65px] h-[15px] w-[15px]",
-    place: "xl:left-[213px] xl:top-[740px]",
+    place: "xl:left-[213px] xl:top-[787px]",
   },
   {
     title: "A Brighter City",
     body: "More than just getting from one place to another, Ark Ride connects people, drivers, and communities to keep the city moving.",
     icon: "/waitlist/icons/people-safe.svg",
     iconClass: "left-[5.04px] top-[4.65px] h-[15px] w-[15px]",
-    place: "xl:left-[408px] xl:top-[887px]",
+    place: "xl:left-[408px] xl:top-[981px]",
   },
 ] as const;
 
@@ -73,7 +81,7 @@ const CARDS = [
  * The WorldStreet badge sits beside it and always links to worldstreet.com.
  */
 const X_URL = "https://x.com/_Arkride_";
-const WORLDSTREET_URL = "https://www.worldstreetgold.com/";
+const WORLDSTREET_URL = "https://social.worldstreetgold.com/";
 
 export default function WaitlistPage() {
   const badgeClass = "flex h-[34px] w-[34px] items-center justify-center";
@@ -126,19 +134,31 @@ export default function WaitlistPage() {
           arbitrary px breakpoint against the rem-based xl one.)
         */}
         <div className="flex flex-col items-center xl:absolute xl:top-0 xl:left-[max(50%_-_720px,100%_-_1440px)] xl:block xl:h-full xl:w-[1440px] [html[data-intro]_&]:transition-[opacity,translate] [html[data-intro]_&]:duration-300 [html[data-intro]_&]:ease-[cubic-bezier(0.42,0,0.58,1)] [html[data-intro=hold]_&]:translate-y-6 [html[data-intro=hold]_&]:opacity-0">
-          <ul className="mt-12 grid w-full max-w-[720px] gap-3 sm:grid-cols-3 xl:contents">
+          <div className="relative mt-10 aspect-[864/789] w-full max-w-[560px] overflow-hidden xl:absolute xl:top-[448px] xl:left-[576px] xl:mt-0 xl:aspect-auto xl:h-[937px] xl:w-[864px] xl:max-w-none xl:overflow-visible">
+            <Image
+              src="/waitlist/phone-hand.jpg"
+              alt="The Ark Ride app open on a phone, offering to book a ride or become a driver"
+              fill
+              priority
+              unoptimized
+              sizes="(min-width: 1280px) 864px, 100vw"
+              className="object-cover object-top"
+            />
+          </div>
+
+          <ul className="mt-10 grid w-full max-w-[720px] gap-3 sm:grid-cols-3 xl:contents">
             {CARDS.map((card) => (
               <li
                 key={card.title}
-                className={`relative rounded-[17.35px] bg-white py-[22px] pr-[56px] pl-[22.4px] text-left xl:absolute xl:z-10 xl:h-[113.47px] xl:w-[232px] xl:overflow-hidden xl:p-0 ${card.place}`}
+                className={`relative rounded-[17.35px] bg-white py-[22px] pr-[56px] pl-[22.4px] text-left xl:absolute xl:z-10 xl:h-[170px] xl:w-[300px] xl:overflow-hidden xl:p-0 ${card.place}`}
               >
-                <h2 className="font-(family-name:--font-mona-sans) text-[15px] leading-[18px]! font-semibold tracking-normal! text-wrap! text-black xl:absolute xl:top-[24.72px] xl:left-[22.4px] xl:text-[11.5639px] xl:leading-[12.2866px]! xl:whitespace-nowrap">
+                <h2 className="font-(family-name:--font-mona-sans) text-[15px] leading-[18px]! font-semibold tracking-normal! text-wrap! text-black xl:absolute xl:top-[24px] xl:left-[26px] xl:text-[17px] xl:leading-[21px]! xl:whitespace-nowrap">
                   {card.title}
                 </h2>
-                <p className="mt-2 font-(family-name:--font-geist) text-[13px] leading-[18px] font-normal text-[#767676] xl:absolute xl:top-[47.7px] xl:left-[22.4px] xl:mt-0 xl:w-[152.5px] xl:text-[8.6729px] xl:leading-[12.2866px]">
+                <p className="mt-2 font-(family-name:--font-geist) text-[13px] leading-[18px] font-normal text-[#767676] xl:absolute xl:top-[54px] xl:left-[26px] xl:mt-0 xl:w-[220px] xl:text-[14px] xl:leading-[20px]">
                   {card.body}
                 </p>
-                <span className="absolute top-[18px] right-[18px] h-[26.02px] w-[26.02px] rounded-full bg-[#FEEE8F] xl:top-[17.35px] xl:right-auto xl:left-[179.96px]">
+                <span className="absolute top-[18px] right-[18px] h-[26.02px] w-[26.02px] rounded-full bg-[#FEEE8F] xl:top-[24px] xl:right-auto xl:left-[250px]">
                   <Image
                     src={card.icon}
                     alt=""
@@ -151,18 +171,6 @@ export default function WaitlistPage() {
               </li>
             ))}
           </ul>
-
-          <div className="relative mt-10 aspect-[864/789] w-full max-w-[560px] overflow-hidden xl:absolute xl:top-[448px] xl:left-[576px] xl:mt-0 xl:aspect-auto xl:h-[937px] xl:w-[864px] xl:max-w-none xl:overflow-visible">
-            <Image
-              src="/waitlist/phone-hand.jpg"
-              alt="The Ark Ride app open on a phone, offering to book a ride or become a driver"
-              fill
-              priority
-              unoptimized
-              sizes="(min-width: 1280px) 864px, 100vw"
-              className="object-cover object-top"
-            />
-          </div>
         </div>
       </section>
 
@@ -186,7 +194,7 @@ export default function WaitlistPage() {
               className={`${badgeClass} transition-opacity hover:opacity-80 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white`}
             >
               <Image
-                src="/WorldStreet4.webp"
+                src="/worldspace-mark-light.png"
                 alt=""
                 width={20}
                 height={20}
@@ -225,6 +233,11 @@ export default function WaitlistPage() {
               </span>
             )}
           </div>
+
+          {/* Sits on the black footer, not the strip image below it — level with the badges but pinned to the far left, matching the header logo's left offset. */}
+          <p className="mt-8 font-(family-name:--font-geist) text-[16px] leading-[26.4px] font-medium whitespace-nowrap text-white xl:absolute xl:top-[103px] xl:left-[79.14px] xl:mt-0">
+            @ 2026 - All rights reserved.
+          </p>
         </div>
 
         {/*
@@ -232,7 +245,7 @@ export default function WaitlistPage() {
           rows 521.7–577.2 of 1024 at full image width. The asset is rows
           512–740, so the band starts 9.716 image px down — 0.63255% of the
           strip's WIDTH at this scale, which is exactly what a percentage
-          margin resolves against. Below xl the band simply covers.
+          margin resolves against.
         */}
         <div className="relative h-[52px] overflow-hidden xl:absolute xl:inset-x-0 xl:top-[171px]">
           <Image
@@ -243,9 +256,6 @@ export default function WaitlistPage() {
             unoptimized
             className="absolute inset-0 h-full w-full max-w-none object-cover xl:static xl:mt-[-0.63255%] xl:ml-[0.02698%] xl:block xl:h-auto xl:w-full xl:object-fill"
           />
-          <p className="absolute top-[13px] left-5 font-(family-name:--font-geist) text-[16px] leading-[26.4px] font-medium whitespace-nowrap text-white xl:left-[calc(50%-621px)]">
-            @ 2026 - All rights reserved.
-          </p>
         </div>
       </footer>
       <LogoIntro targetId="waitlist-logo" />
