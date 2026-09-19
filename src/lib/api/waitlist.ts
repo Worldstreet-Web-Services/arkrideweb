@@ -18,6 +18,8 @@ export interface WaitlistEntry {
   email: string;
   userType: WaitlistUserType;
   feature: string | null;
+  lga: string | null;
+  area: string | null;
   createdAt: string;
 }
 
@@ -29,6 +31,10 @@ export interface JoinWaitlistInput {
   /** Required by the API. */
   phoneNumber: string;
   name?: string;
+  /** Lagos LGA, picked from a list or typed under "Other". Up to 80 characters. */
+  lga?: string;
+  /** The neighbourhood a driver operates in. Drivers only, up to 120 characters. */
+  area?: string;
 }
 
 export function joinWaitlist(input: JoinWaitlistInput): Promise<WaitlistEntry> {

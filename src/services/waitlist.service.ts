@@ -2,6 +2,7 @@ import type {
   JoinWaitlistInput,
   WaitlistUserType,
 } from "@/lib/api/waitlist";
+import { OTHER_VALUE } from "@/lib/waitlist/options";
 
 /**
  * Client-side waitlist service.
@@ -17,6 +18,8 @@ export type WaitlistField =
   | "name"
   | "email"
   | "phoneNumber"
+  | "lga"
+  | "area"
   | "feature";
 
 export interface WaitlistFormValues {
@@ -24,7 +27,15 @@ export interface WaitlistFormValues {
   name: string;
   email: string;
   phoneNumber: string;
+  /** What the dropdown holds, or `OTHER_VALUE`. Kept so an empty "Other" can be caught. */
+  featureChoice: string;
+  /** The resolved feature: the picked label, or the text typed under "Other". */
   feature: string;
+  lgaChoice: string;
+  /** The resolved LGA, on the same terms as `feature`. */
+  lga: string;
+  /** The neighbourhood a driver operates in. Only read for drivers. */
+  area: string;
 }
 
 export interface JoinWaitlistResult {
@@ -108,11 +119,38 @@ export async function joinWaitlist(
  */
 const LOOKS_LIKE_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+function readText(formData: FormData, name: string, max: number): string {
+  return String(formData.get(name) ?? "")
+    .trim()
+    .slice(0, max);
+}
+
+/**
+ * A dropdown paired with an "Other" text box submits two fields: the select
+ * (`name`) and the box (`${name}Other`). The API wants one string, so the
+ * picked label, or the typed text when "Other" is chosen, becomes that string.
+ */
+function readChoice(
+  formData: FormData,
+  name: string,
+  max: number,
+): { choice: string; value: string } {
+  const choice = String(formData.get(name) ?? "");
+  const value =
+    choice === OTHER_VALUE
+      ? readText(formData, `${name}Other`, max)
+      : choice.trim().slice(0, max);
+  return { choice, value };
+}
+
 /** Read and lightly normalize the waitlist form's raw `FormData`. */
 export function readWaitlistFormValues(formData: FormData): WaitlistFormValues {
   const rawType = formData.get("userType");
   const userType: WaitlistUserType | "" =
     rawType === "driver" ? "driver" : rawType === "user" ? "user" : "";
+  // Capped at the API's own limits: 500, 80 and 120 characters.
+  const feature = readChoice(formData, "feature", 500);
+  const lga = readChoice(formData, "lga", 80);
 
   return {
     userType,
@@ -124,9 +162,11 @@ export function readWaitlistFormValues(formData: FormData): WaitlistFormValues {
       .trim()
       .toLowerCase(),
     phoneNumber: String(formData.get("phoneNumber") ?? "").trim(),
-    feature: String(formData.get("feature") ?? "")
-      .trim()
-      .slice(0, 500),
+    featureChoice: feature.choice,
+    feature: feature.value,
+    lgaChoice: lga.choice,
+    lga: lga.value,
+    area: readText(formData, "area", 120),
   };
 }
 
@@ -150,6 +190,17 @@ export function validateWaitlistInput(
   if ((values.phoneNumber.match(/\d/g) ?? []).length < 7) {
     errors.phoneNumber = "Enter a valid phone number.";
   }
+  // Choosing "Other" and typing nothing is a half-finished answer. Leaving the
+  // dropdown alone is fine: both of these fields are optional.
+  if (values.lgaChoice === OTHER_VALUE && !values.lga) {
+    errors.lga = "Type your LGA or town, or pick one from the list.";
+  }
+  if (values.userType === "driver" && !values.area) {
+    errors.area = "Tell us which area of Lagos you drive in.";
+  }
+  if (values.featureChoice === OTHER_VALUE && !values.feature) {
+    errors.feature = "Describe the feature, or pick one from the list.";
+  }
 
   return errors;
 }
@@ -163,5 +214,8 @@ export function toJoinWaitlistInput(
     phoneNumber: values.phoneNumber,
     userType: (values.userType || "user") as WaitlistUserType,
     feature: values.feature || undefined,
+    lga: values.lga || undefined,
+    // Riders are never asked, so never send one even if the field lingers.
+    area: values.userType === "driver" ? values.area || undefined : undefined,
   };
 }

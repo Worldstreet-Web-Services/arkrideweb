@@ -3,6 +3,9 @@
 import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useJoinWaitlist } from "@/hooks/useJoinWaitlist";
+import type { WaitlistUserType } from "@/lib/api/waitlist";
+import { LAGOS_LGAS } from "@/lib/locations/lagos";
+import { FEATURE_OPTIONS, OTHER_VALUE } from "@/lib/waitlist/options";
 import {
   WaitlistApiError,
   readWaitlistFormValues,
@@ -21,23 +24,32 @@ const FIELD_ORDER: readonly WaitlistField[] = [
   "name",
   "email",
   "phoneNumber",
+  "lga",
+  "area",
   "feature",
 ];
 
-/** Move focus to the first field that has an error under it. */
+/**
+ * Move focus to the first field that has an error under it.
+ *
+ * `lga` and `feature` are a dropdown plus an "Other" text box. The box only
+ * exists while "Other" is chosen, and that is the one case its error can be
+ * about, so prefer it to the dropdown when it is there.
+ */
 function focusFirstErrorField(
   form: HTMLFormElement | null,
   errors: Partial<Record<WaitlistField, string>>,
 ) {
   const first = FIELD_ORDER.find((field) => errors[field]);
   if (!first || !form) return;
-  form
-    .querySelector<HTMLElement>(
-      first === "userType"
-        ? 'input[name="userType"]:checked, input[name="userType"]'
-        : `[name="${first}"]`,
-    )
-    ?.focus();
+  const target =
+    first === "userType"
+      ? form.querySelector<HTMLElement>(
+          'input[name="userType"]:checked, input[name="userType"]',
+        )
+      : (form.querySelector<HTMLElement>(`[name="${first}Other"]`) ??
+        form.querySelector<HTMLElement>(`[name="${first}"]`));
+  target?.focus();
 }
 
 /**
@@ -176,6 +188,13 @@ function WaitlistPanel({
   const [preflightErrors, setPreflightErrors] = useState<
     Partial<Record<WaitlistField, string>>
   >({});
+  // The role picks which feature list is offered and whether drivers' area is
+  // asked, and each dropdown needs its value to know whether "Other" is chosen.
+  // The radios and text inputs stay uncontrolled: `handleSubmit` reads them
+  // from the form.
+  const [selectedRole, setSelectedRole] = useState<WaitlistUserType>("user");
+  const [featureChoice, setFeatureChoice] = useState("");
+  const [lgaChoice, setLgaChoice] = useState("");
 
   useEffect(() => {
     if (mutation.isSuccess) onJoined();
@@ -220,7 +239,8 @@ function WaitlistPanel({
     Object.keys(errors).length === 0 && mutation.error
       ? mutation.error.message
       : undefined;
-  const id = (field: WaitlistField) => `${baseId}-${field}`;
+  const id = (field: WaitlistField | "lgaOther" | "featureOther") =>
+    `${baseId}-${field}`;
 
   return (
     <>
@@ -255,6 +275,12 @@ function WaitlistPanel({
                   name="userType"
                   value={role.value}
                   defaultChecked={role.value === "user"}
+                  onChange={() => {
+                    setSelectedRole(role.value);
+                    // The other role's feature list has different options, so a
+                    // pick is cleared. "Other" survives, keeping what was typed.
+                    setFeatureChoice((c) => (c === OTHER_VALUE ? c : ""));
+                  }}
                   className="sr-only"
                 />
                 <span className="flex items-start justify-between gap-2">
@@ -340,24 +366,107 @@ function WaitlistPanel({
         </Field>
 
         <Field
+          id={id("lga")}
+          label="Where in Lagos are you?"
+          optional
+          icon="/waitlist/icons/pin.svg"
+          error={lgaChoice === OTHER_VALUE ? undefined : errors.lga}
+        >
+          <SelectInput
+            id={id("lga")}
+            name="lga"
+            placeholder="Choose your LGA"
+            options={LAGOS_LGAS}
+            value={lgaChoice}
+            onChange={setLgaChoice}
+            error={lgaChoice === OTHER_VALUE ? undefined : errors.lga}
+          />
+        </Field>
+
+        {lgaChoice === OTHER_VALUE ? (
+          <Field
+            id={id("lgaOther")}
+            label="Your LGA or town"
+            icon="/waitlist/icons/pin.svg"
+            error={errors.lga}
+          >
+            <input
+              id={id("lgaOther")}
+              name="lgaOther"
+              type="text"
+              maxLength={80}
+              autoComplete="off"
+              placeholder="Type where you are"
+              aria-invalid={errors.lga ? true : undefined}
+              aria-describedby={errors.lga ? `${id("lgaOther")}-error` : undefined}
+              className={INPUT}
+            />
+          </Field>
+        ) : null}
+
+        {/* Only drivers are asked for their exact area. */}
+        {selectedRole === "driver" ? (
+          <Field
+            id={id("area")}
+            label="Which area do you drive in?"
+            icon="/waitlist/icons/pin.svg"
+            error={errors.area}
+          >
+            <input
+              id={id("area")}
+              name="area"
+              type="text"
+              required
+              maxLength={120}
+              autoComplete="off"
+              placeholder="e.g. Lekki Phase 1, Yaba"
+              aria-invalid={errors.area ? true : undefined}
+              aria-describedby={errors.area ? `${id("area")}-error` : undefined}
+              className={INPUT}
+            />
+          </Field>
+        ) : null}
+
+        <Field
           id={id("feature")}
           label="What feature would you like to see?"
           optional
           icon="/waitlist/icons/bulb.svg"
-          error={errors.feature}
+          error={featureChoice === OTHER_VALUE ? undefined : errors.feature}
         >
-          <input
+          <SelectInput
             id={id("feature")}
             name="feature"
-            type="text"
-            maxLength={500}
-            autoComplete="off"
-            placeholder="e.g. Split a fare with friends"
-            aria-invalid={errors.feature ? true : undefined}
-            aria-describedby={errors.feature ? `${id("feature")}-error` : undefined}
-            className={INPUT}
+            placeholder="Choose one"
+            options={FEATURE_OPTIONS[selectedRole]}
+            value={featureChoice}
+            onChange={setFeatureChoice}
+            error={featureChoice === OTHER_VALUE ? undefined : errors.feature}
           />
         </Field>
+
+        {featureChoice === OTHER_VALUE ? (
+          <Field
+            id={id("featureOther")}
+            label="Your feature idea"
+            icon="/waitlist/icons/bulb.svg"
+            error={errors.feature}
+          >
+            <input
+              id={id("featureOther")}
+              name="featureOther"
+              type="text"
+              maxLength={500}
+              autoComplete="off"
+              placeholder="Describe the feature you'd like"
+              aria-invalid={errors.feature ? true : undefined}
+              aria-describedby={
+                errors.feature ? `${id("featureOther")}-error` : undefined
+              }
+              className={INPUT}
+            />
+          </Field>
+        ) : null}
 
         {generalMessage ? (
           <p
@@ -386,6 +495,73 @@ function WaitlistPanel({
  */
 const INPUT =
   "h-full min-w-0 flex-1 bg-transparent font-(family-name:--font-geist) text-[16px] leading-[24px] text-black caret-black outline-none! placeholder:text-[#A7A5A5] autofill:shadow-[inset_0_0_0_1000px_#FDFBFB] autofill:[-webkit-text-fill-color:#000] group-focus-within/field:autofill:shadow-[inset_0_0_0_1000px_#FFFFFF] sm:text-[15px]";
+
+/**
+ * A native <select> that sits inside `Field` where an input would.
+ *
+ * Native, not a custom listbox: phones open their own picker, keyboard and
+ * screen-reader behaviour are free, and it lives happily inside the modal
+ * <dialog>. The last option is always "Other", which the caller answers by
+ * revealing a text box. Until something is chosen it is drawn in the
+ * placeholder grey, like the empty inputs around it.
+ */
+function SelectInput({
+  id,
+  name,
+  placeholder,
+  options,
+  value,
+  onChange,
+  error,
+}: {
+  id: string;
+  name: string;
+  placeholder: string;
+  options: readonly string[];
+  value: string;
+  onChange: (value: string) => void;
+  error?: string;
+}) {
+  return (
+    <div className="relative flex h-full min-w-0 flex-1 items-center">
+      <select
+        id={id}
+        name={name}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+        aria-invalid={error ? true : undefined}
+        aria-describedby={error ? `${id}-error` : undefined}
+        className={`${INPUT} w-full cursor-pointer appearance-none pr-6 ${
+          value === "" ? "text-[#A7A5A5]!" : ""
+        }`}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((option) => (
+          <option key={option} value={option} className="text-black">
+            {option}
+          </option>
+        ))}
+        <option value={OTHER_VALUE} className="text-black">
+          Other (type it in)
+        </option>
+      </select>
+      <svg
+        aria-hidden
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#A7A5A5"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="pointer-events-none absolute right-0"
+      >
+        <polyline points="6 9 12 15 18 9" />
+      </svg>
+    </div>
+  );
+}
 
 function Field({
   id,

@@ -19,6 +19,8 @@ const WAITLIST_FIELDS = [
   "email",
   "phoneNumber",
   "feature",
+  "lga",
+  "area",
 ] as const;
 
 interface WaitlistRequestBody {
@@ -27,6 +29,8 @@ interface WaitlistRequestBody {
   phoneNumber?: unknown;
   userType?: unknown;
   feature?: unknown;
+  lga?: unknown;
+  area?: unknown;
 }
 
 export async function POST(request: Request) {
@@ -72,6 +76,12 @@ export async function POST(request: Request) {
 
   const name = typeof body.name === "string" ? body.name : undefined;
   const feature = typeof body.feature === "string" ? body.feature : undefined;
+  const lga = typeof body.lga === "string" ? body.lga : undefined;
+  // Only drivers are asked for an area; never forward one for a rider.
+  const area =
+    userType === "driver" && typeof body.area === "string"
+      ? body.area
+      : undefined;
 
   try {
     const entry = await joinWaitlist({
@@ -80,6 +90,8 @@ export async function POST(request: Request) {
       phoneNumber,
       userType,
       feature: feature || undefined,
+      lga: lga || undefined,
+      area: area || undefined,
     });
     return NextResponse.json(
       { success: true, alreadyJoined: false, data: entry },
