@@ -5,6 +5,7 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useJoinWaitlist } from "@/hooks/useJoinWaitlist";
 import type { WaitlistUserType } from "@/lib/api/waitlist";
 import { LAGOS_LGAS } from "@/lib/locations/lagos";
+import { WaitlistToaster } from "@/components/waitlist/WaitlistToaster";
 import { FEATURE_OPTIONS, OTHER_VALUE } from "@/lib/waitlist/options";
 import {
   WaitlistApiError,
@@ -89,6 +90,7 @@ function focusFirstErrorField(
  */
 export function WaitlistDialog({ className = "" }: { className?: string }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const toasterRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const joinedRef = useRef(false);
   const [session, setSession] = useState(0);
@@ -100,6 +102,12 @@ export function WaitlistDialog({ className = "" }: { className?: string }) {
       setSession((s) => s + 1);
     }
     dialogRef.current?.showModal();
+    // Top-layer elements stack in the order they were added, so the toaster is
+    // re-shown after the dialog to sit above it (hide first: showing an
+    // already-shown popover throws, and would leave it beneath the dialog).
+    const toaster = toasterRef.current;
+    if (toaster?.matches(":popover-open")) toaster.hidePopover();
+    toaster?.showPopover();
   };
 
   const close = () => dialogRef.current?.close();
@@ -119,6 +127,8 @@ export function WaitlistDialog({ className = "" }: { className?: string }) {
         {/* 1.2px: the browser sets Mona Sans 12/26 that much higher than the render. */}
         <span className="relative xl:top-[1.2px]">Join the Waitlist</span>
       </button>
+
+      <WaitlistToaster ref={toasterRef} />
 
       <dialog
         ref={dialogRef}
