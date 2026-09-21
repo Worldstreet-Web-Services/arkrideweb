@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { useJoinWaitlist } from "@/hooks/useJoinWaitlist";
+import { track } from "@/lib/analytics";
 import type { WaitlistUserType } from "@/lib/api/waitlist";
 import { LAGOS_LGAS } from "@/lib/locations/lagos";
 import { WaitlistToaster } from "@/components/waitlist/WaitlistToaster";
@@ -102,6 +103,7 @@ export function WaitlistDialog({ className = "" }: { className?: string }) {
       setSession((s) => s + 1);
     }
     dialogRef.current?.showModal();
+    track("waitlist_dialog_opened");
     // Top-layer elements stack in the order they were added, so the toaster is
     // re-shown after the dialog to sit above it (hide first: showing an
     // already-shown popover throws, and would leave it beneath the dialog).

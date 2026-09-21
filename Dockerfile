@@ -63,6 +63,15 @@ ENV NEXT_TELEMETRY_DISABLED=1
 ARG NEXT_PUBLIC_PRIVY_APP_ID
 ENV NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID}
 
+# PostHog. The project token is public, like the Privy app id, and is inlined
+# into the bundle. POSTHOG_INGEST_HOST is not a NEXT_PUBLIC_ value, but
+# next.config.ts bakes it into the `/ingest` rewrite at build time, so it has to
+# be here too. Both are optional: unset, no analytics load.
+ARG NEXT_PUBLIC_POSTHOG_KEY
+ENV NEXT_PUBLIC_POSTHOG_KEY=${NEXT_PUBLIC_POSTHOG_KEY}
+ARG POSTHOG_INGEST_HOST
+ENV POSTHOG_INGEST_HOST=${POSTHOG_INGEST_HOST}
+
 RUN npm run build
 
 

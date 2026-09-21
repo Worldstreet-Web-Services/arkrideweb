@@ -1,6 +1,23 @@
 import type { NextConfig } from "next";
 
 /**
+ * Where `/ingest` is forwarded (see `rewrites()` below). PostHog cloud US by
+ * default; set `POSTHOG_INGEST_HOST=https://eu.i.posthog.com` for EU. The SDK's
+ * scripts come from a sibling "assets" host, derived rather than configured
+ * separately so the two can never point at different regions.
+ */
+// `||`, not `??`: the Dockerfile declares this as a build arg, and an ARG that
+// was not passed becomes the EMPTY STRING, not undefined. `??` would keep the
+// empty string, and `""` as a destination rewrites /ingest back onto itself.
+const POSTHOG_HOST = (
+  process.env.POSTHOG_INGEST_HOST?.trim() || "https://us.i.posthog.com"
+).replace(/\/$/, "");
+const POSTHOG_ASSETS_HOST = POSTHOG_HOST.replace(
+  ".i.posthog.com",
+  "-assets.i.posthog.com",
+);
+
+/**
  * Security headers.
  *
  * There were none before this: /admin renders scanned government IDs and was
@@ -100,6 +117,40 @@ const nextConfig: NextConfig = {
   async redirects() {
     return [{ source: "/waitlist", destination: "/", permanent: false }];
   },
+
+  /**
+   * PostHog, served from this origin (see src/instrumentation-client.ts for
+   * why). The browser talks to `/ingest`; the server forwards it.
+   *
+   * ORDER MATTERS: the specific paths first. `/ingest/static` and
+   * `/ingest/array` are the SDK's own scripts and remote config, which live on
+   * PostHog's separate assets host; everything else is event ingestion.
+   *
+   * These are resolved at BUILD time — `POSTHOG_INGEST_HOST` has to be present
+   * when `next build` runs (the Dockerfile passes it as a build arg), not just
+   * when the server starts.
+   */
+  async rewrites() {
+    return [
+      {
+        source: "/ingest/static/:path*",
+        destination: `${POSTHOG_ASSETS_HOST}/static/:path*`,
+      },
+      {
+        source: "/ingest/array/:path*",
+        destination: `${POSTHOG_ASSETS_HOST}/array/:path*`,
+      },
+      { source: "/ingest/:path*", destination: `${POSTHOG_HOST}/:path*` },
+    ];
+  },
+
+  /**
+   * PostHog's endpoints end in a slash (`/e/`, `/flags/`). By default Next
+   * 308-redirects that to the slash-less form before the rewrite runs, and the
+   * redirect breaks the request. This turns that redirect off, app-wide: a
+   * path typed WITH a trailing slash no longer redirects to the one without.
+   */
+  skipTrailingSlashRedirect: true,
 
   async headers() {
     return [
